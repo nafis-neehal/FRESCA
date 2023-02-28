@@ -4,11 +4,10 @@ output: html_notebook
 ---
 
 ```{r warning=FALSE}
-setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
-source("./Scripts/common.R")
-source("./Scripts/run_patt_scenario.R")
-source("./Modules/p_val_add.R")
-source("./Modules/equity_metrics_miao.R")
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(ggplot2)
+})
 ```
 
 ```{r warning=FALSE}
@@ -18,6 +17,22 @@ patt_filename <- "PATT_Summary_extrabias.csv"
 ldm_filename <- "LDM_Summary_extrabias.csv"
 Final_PATT_Summary <- read.csv(paste(directory, patt_filename, sep = ""))
 Final_LDM_Summary <- read.csv(paste(directory, ldm_filename, sep = ""))
+```
+
+```{r}
+confidence_interval <- function(vector, interval){
+  # Standard deviation of sample
+  vec_sd <- sd(vector)
+  # Sample size
+  n <- length(vector)
+  # Mean of sample
+  vec_mean <- mean(vector)
+  # Error according to t distribution
+  error <- qt((interval + 1)/2, df = n - 1) * vec_sd / sqrt(n)
+  # Confidence interval as a vector
+  result <- c("lower" = vec_mean - error, "upper" = vec_mean + error)
+  return(result)
+}
 ```
 
 # No need to Edit this section
