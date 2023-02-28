@@ -148,12 +148,18 @@ get_patt_plot_2 <- function(mean_patt_summary, pop_label, col, col_low, col_high
     geom_text(aes(y=sgt-0.05, x=600, label = as.character(sgt), colour = "SPRINT"), size = 5) +
     geom_text(aes(y=gt+0.05,  x=600, label = as.character(gt),  colour = "NHANES"), size = 5) +
     theme_classic()+
-    #labs(x="CC_Size", y="PATT Estimate", caption = caption) +
     labs(y="PATT Estimate", caption = caption) +
+    labs(title="PATT Estimate for blah-blah") +
     scale_x_continuous("CC_Size", labels = as.character(mean_patt_summary$CC_Size), breaks = mean_patt_summary$CC_Size) +
     scale_color_manual(name='Population', values=c("Only CC"="black", "SPRINT"="#FF3300", "NHANES"="#339900")) + 
     theme(axis.text = element_text(size = 15)) + 
-    theme(axis.title = element_text(size = 15)) 
+    theme(axis.title = element_text(size = 15)) + 
+    theme(legend.title = element_text(size = 15)) +
+    theme(legend.text = element_text(size = 15)) +
+    geom_text(aes(y=-0.5, x=0, angle=90), 
+              label = "No data for CC_Size=0", 
+              size = 5) +
+    NULL
   return(p)
 }
 ```
@@ -285,6 +291,7 @@ get_ldm_plot_2 <- function(mean_ldm_summary, var, level, pop_label, col, col_low
                   colour = "Equity Range"), size = 5) +
     theme_classic()+
     labs(y="Median LDM Estimate") +
+    labs(title="Median LDM Estimate for blah-blah") +
     scale_x_continuous("CC_Size", labels = as.character(mean_patt_summary$CC_Size), breaks = mean_patt_summary$CC_Size) +
     scale_color_manual(name="Population", values=c("Only CC"="black", "Equity Range"="#339900")) +
     theme(axis.text = element_text(size = 15)) +
