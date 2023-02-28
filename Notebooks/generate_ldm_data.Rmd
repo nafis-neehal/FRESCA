@@ -6,7 +6,7 @@ output: html_notebook
 Import the common scripts, modules and libraries and set the working directory.
 
 ```{r}
-setwd("/home/neehan/data/Nafis/ESCA_Git")
+setwd("/home/neehan/data/Nafis/ESCA_Primary")
 source("./Scripts/common.R")
 source("./Scripts/run_ldm_scenario.R")
 source("./Modules/p_val_add.R")
@@ -18,12 +18,13 @@ Set hyperparameters.
 ```{r}
 TA_World <- data %>% filter(RANDASSIGN==1)
 TA_size <- 1000
-total_seeds <- 20
+total_seeds <- 2
+total_success <- 3 #number of inner bootstraps
 IPF_maxiter <- 100
-step_size <- 100
+step_size <- 500
 randomization_ratio <- 1
 num_col <- 10
-CC_size_list <- seq(TA_size-step_size, 100, -step_size)
+CC_size_list <- seq(TA_size, 0, -step_size)
 EC_size_list <- randomization_ratio*TA_size - CC_size_list
 ```
 
@@ -45,6 +46,7 @@ pb <- txtProgressBar(max = length(total_seeds * length(CC_size_list)), style = 3
 progress <- function(n) setTxtProgressBar(pb, n)
 opts <- list(progress = progress)
 
+start <- Sys.time()
 Final_LDM_Summary <- foreach(seed_value=seq(1,total_seeds,1), .combine = 'rbind', 
                              .packages = packages, 
                              .options.snow = opts)%:%
@@ -52,13 +54,15 @@ Final_LDM_Summary <- foreach(seed_value=seq(1,total_seeds,1), .combine = 'rbind'
     run_one_ldm_scenario(seed_value, size)
     }
 
+end <- Sys.time()
+paste("Total time took:", end-start)
 
 close(pb)
 stopCluster(cl)
 stopImplicitCluster()
 
-setwd("/home/neehan/data/Nafis/ESCA_Git")
+setwd("/home/neehan/data/Nafis/ESCA_Primary")
 directory <- "./Data/Results/M6/"
-filename <- "LDM_Summary.csv"
+filename <- "LDM_Summary_kpbfixed_50bootstrap_extrabias_boo.csv"
 write.csv(Final_LDM_Summary, paste(directory, filename, sep = ""), row.names = FALSE)
 ```

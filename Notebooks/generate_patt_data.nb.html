@@ -1766,14 +1766,9 @@ Estimations</h1>
 directory.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0d2QoXCIvaG9tZS9uZWVoYW4vZGF0YS9OYWZpcy9FU0NBX0dpdFwiKVxuYGBgIn0= -->
-<pre class="r"><code>setwd(&quot;/home/neehan/data/Nafis/ESCA_Git&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogVGhlIHdvcmtpbmcgZGlyZWN0b3J5IHdhcyBjaGFuZ2VkIHRvIC9kYXRhL05hZmlzL0VTQ0FfR2l0IGluc2lkZSBhIG5vdGVib29rIGNodW5rLiBUaGUgd29ya2luZyBkaXJlY3Rvcnkgd2lsbCBiZSByZXNldCB3aGVuIHRoZSBjaHVuayBpcyBmaW5pc2hlZCBydW5uaW5nLiBVc2UgdGhlIGtuaXRyIHJvb3QuZGlyIG9wdGlvbiBpbiB0aGUgc2V0dXAgY2h1bmsgdG8gY2hhbmdlIHRoZSB3b3JraW5nIGRpcmVjdG9yeSBmb3Igbm90ZWJvb2sgY2h1bmtzLlxuIn0= -->
-<pre><code>Warning: The working directory was changed to /data/Nafis/ESCA_Git inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiLi9TY3JpcHRzL2NvbW1vbi5SXCIpXG5zb3VyY2UoXCIuL1NjcmlwdHMvcnVuX3BhdHRfc2NlbmFyaW8uUlwiKVxuc291cmNlKFwiLi9Nb2R1bGVzL3BfdmFsX2FkZC5SXCIpXG5zb3VyY2UoXCIuL01vZHVsZXMvZXF1aXR5X21ldHJpY3NfbWlhby5SXCIpXG5gYGAifQ== -->
-<pre class="r"><code>source(&quot;./Scripts/common.R&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0d2QoXCIvaG9tZS9uZWVoYW4vZGF0YS9OYWZpcy9FU0NBX1ByaW1hcnlcIilcbnNvdXJjZShcIi4vU2NyaXB0cy9jb21tb24uUlwiKVxuc291cmNlKFwiLi9TY3JpcHRzL3J1bl9wYXR0X3NjZW5hcmlvLlJcIilcbnNvdXJjZShcIi4vTW9kdWxlcy9wX3ZhbF9hZGQuUlwiKVxuc291cmNlKFwiLi9Nb2R1bGVzL2VxdWl0eV9tZXRyaWNzX21pYW8uUlwiKVxuYGBgIn0= -->
+<pre class="r"><code>setwd(&quot;/home/neehan/data/Nafis/ESCA_Primary&quot;)
+source(&quot;./Scripts/common.R&quot;)
 source(&quot;./Scripts/run_patt_scenario.R&quot;)
 source(&quot;./Modules/p_val_add.R&quot;)
 source(&quot;./Modules/equity_metrics_miao.R&quot;)</code></pre>
@@ -1783,15 +1778,16 @@ source(&quot;./Modules/equity_metrics_miao.R&quot;)</code></pre>
 <p>Set hyperparameters.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuVEFfV29ybGQgPC0gZGF0YSAlPiUgZmlsdGVyKFJBTkRBU1NJR049PTEpXG5UQV9zaXplIDwtIDEwMDBcbnRvdGFsX3NlZWRzIDwtIDIwICNudW1iZXIgb2YgdG90YWwgc2NlbmFyaW9zXG5JUEZfbWF4aXRlciA8LSAxMDBcbnN0ZXBfc2l6ZSA8LSAxMDBcbnJhbmRvbWl6YXRpb25fcmF0aW8gPC0gMVxubnVtX2NvbCA8LSA3XG5DQ19zaXplX2xpc3QgPC0gc2VxKFRBX3NpemUtc3RlcF9zaXplLCAxMDAsIC1zdGVwX3NpemUpXG5FQ19zaXplX2xpc3QgPC0gcmFuZG9taXphdGlvbl9yYXRpbypUQV9zaXplIC0gQ0Nfc2l6ZV9saXN0XG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuVEFfV29ybGQgPC0gZGF0YSAlPiUgZmlsdGVyKFJBTkRBU1NJR049PTEpXG5UQV9zaXplIDwtIDEwMDBcbnRvdGFsX3NlZWRzIDwtIDE1ICNudW1iZXIgb2YgdG90YWwgc2NlbmFyaW9zXG50b3RhbF9zdWNjZXNzIDwtIDUwICNudW1iZXIgb2YgaW5uZXIgYm9vdHN0cmFwc1xuSVBGX21heGl0ZXIgPC0gMTAwXG5zdGVwX3NpemUgPC0gMjUwXG5yYW5kb21pemF0aW9uX3JhdGlvIDwtIDFcbm51bV9jb2wgPC0gN1xuQ0Nfc2l6ZV9saXN0IDwtIHNlcShUQV9zaXplLCAwLCAtc3RlcF9zaXplKVxuRUNfc2l6ZV9saXN0IDwtIHJhbmRvbWl6YXRpb25fcmF0aW8qVEFfc2l6ZSAtIENDX3NpemVfbGlzdFxuYGBgIn0= -->
 <pre class="r"><code>TA_World &lt;- data %&gt;% filter(RANDASSIGN==1)
 TA_size &lt;- 1000
-total_seeds &lt;- 20 #number of total scenarios
+total_seeds &lt;- 15 #number of total scenarios
+total_success &lt;- 50 #number of inner bootstraps
 IPF_maxiter &lt;- 100
-step_size &lt;- 100
+step_size &lt;- 250
 randomization_ratio &lt;- 1
 num_col &lt;- 7
-CC_size_list &lt;- seq(TA_size-step_size, 100, -step_size)
+CC_size_list &lt;- seq(TA_size, 0, -step_size)
 EC_size_list &lt;- randomization_ratio*TA_size - CC_size_list</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
@@ -1799,21 +1795,58 @@ EC_size_list &lt;- randomization_ratio*TA_size - CC_size_list</code></pre>
 <p>Generate and save results into the designated directory.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0d2QoXCIvaG9tZS9uZWVoYW4vZGF0YS9OYWZpcy9FU0NBX0dpdFwiKVxuXG5gYGAifQ== -->
-<pre class="r"><code>setwd(&quot;/home/neehan/data/Nafis/ESCA_Git&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2ZpbmFsIGRhdGFmcmFtZSB0aGF0IHdpbGwgY29udGFpbiB0aGUgcmVzdWx0XG5GaW5hbF9QQVRUX1N1bW1hcnkgPC0gZGF0YS5mcmFtZShtYXRyaXgobmNvbCA9IG51bV9jb2wsIG5yb3cgPSAwKSlcbmNvbHNQQVRUIDwtIGMoXCJTZWVkXCIsIFwiQ0NfU2l6ZVwiLCBcIlRBX0NDXCIsIFwiVEFfSENcIiwgXCJUQV9IQ19Qcm9wXCIsIFxuICAgICAgICAgICAgICBcIlRBX0hDX0lQRlwiLCBcIlRBX0hDX0JvdGhcIilcbmNvbG5hbWVzKEZpbmFsX1BBVFRfU3VtbWFyeSkgPC0gY29sc1BBVFRcblxuI3NldHRpbmdzIGZvciBjbHVzdGVyIGluaXRpYXRpb24gYW5kIHBhcmFsbGVsaXphdGlvblxuY29yZXM9ZGV0ZWN0Q29yZXMobG9naWNhbCA9IFRSVUUpICNjaGVjayBudW1iZXIgb2YgY29yZXNcbmNsIDwtIG1ha2VDbHVzdGVyKGNvcmVzWzFdLTEpICN1c2luZyBhbGwgYnV0IG9uZSBub2Rlc1xucmVnaXN0ZXJEb1NOT1coY2wpICNyZWdpc3RlciB0aGUgY2x1c3RlclxuXG5wYWNrYWdlcyA8LSBjKFwiZHBseXJcIiwgXCJpcGZyXCIsIFwiTWF0Y2hJdFwiLCBcIm1hcmdpbmFsZWZmZWN0c1wiLCBcInRhYmxlb25lXCIsIFwic3Vydml2YWxcIikgI3BhY2thZ2VzIHRvIGNvcHkgaW4gZWFjaCBub2RlIGluIHRoZSBjbHVzdGVyXG5cbmBgYCJ9 -->
+<pre class="r"><code>#final dataframe that will contain the result
+Final_PATT_Summary &lt;- data.frame(matrix(ncol = num_col, nrow = 0))
+colsPATT &lt;- c(&quot;Seed&quot;, &quot;CC_Size&quot;, &quot;TA_CC&quot;, &quot;TA_HC&quot;, &quot;TA_HC_Prop&quot;, 
+              &quot;TA_HC_IPF&quot;, &quot;TA_HC_Both&quot;)
+colnames(Final_PATT_Summary) &lt;- colsPATT
+
+#settings for cluster initiation and parallelization
+cores=detectCores(logical = TRUE) #check number of cores
+cl &lt;- makeCluster(cores[1]-1) #using all but one nodes
+registerDoSNOW(cl) #register the cluster
+
+packages &lt;- c(&quot;dplyr&quot;, &quot;ipfr&quot;, &quot;MatchIt&quot;, &quot;marginaleffects&quot;, &quot;tableone&quot;, &quot;survival&quot;) #packages to copy in each node in the cluster
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogVGhlIHdvcmtpbmcgZGlyZWN0b3J5IHdhcyBjaGFuZ2VkIHRvIC9kYXRhL05hZmlzL0VTQ0FfR2l0IGluc2lkZSBhIG5vdGVib29rIGNodW5rLiBUaGUgd29ya2luZyBkaXJlY3Rvcnkgd2lsbCBiZSByZXNldCB3aGVuIHRoZSBjaHVuayBpcyBmaW5pc2hlZCBydW5uaW5nLiBVc2UgdGhlIGtuaXRyIHJvb3QuZGlyIG9wdGlvbiBpbiB0aGUgc2V0dXAgY2h1bmsgdG8gY2hhbmdlIHRoZSB3b3JraW5nIGRpcmVjdG9yeSBmb3Igbm90ZWJvb2sgY2h1bmtzLlxuIn0= -->
-<pre><code>Warning: The working directory was changed to /data/Nafis/ESCA_Git inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGlyZWN0b3J5IDwtIFwiLi9EYXRhL1Jlc3VsdHMvTTYvXCJcbmZpbGVuYW1lIDwtIFwiUEFUVF9TdW1tYXJ5LmNzdlwiXG53cml0ZS5jc3YoRmluYWxfUEFUVF9TdW1tYXJ5LCBwYXN0ZShkaXJlY3RvcnksIGZpbGVuYW1lLCBzZXAgPSBcIlwiKSwgcm93Lm5hbWVzID0gRkFMU0UpXG5gYGAifQ== -->
-<pre class="r"><code>directory &lt;- &quot;./Data/Results/M6/&quot;
-filename &lt;- &quot;PATT_Summary.csv&quot;
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI25lc3RlZCBwYXJhbGxlbGl6YXRpb24gc3RhcnRzIGhlcmVcbnBiIDwtIHR4dFByb2dyZXNzQmFyKG1pbj0wLCBcbiAgICAgICAgICAgICAgICAgICAgIG1heCA9IHRvdGFsX3NlZWRzICogbGVuZ3RoKENDX3NpemVfbGlzdCksIFxuICAgICAgICAgICAgICAgICAgICAgc3R5bGUgPSAzKVxucHJvZ3Jlc3MgPC0gZnVuY3Rpb24obikgc2V0VHh0UHJvZ3Jlc3NCYXIocGIsIG4pXG5vcHRzIDwtIGxpc3QocHJvZ3Jlc3MgPSBwcm9ncmVzcylcblxuc3RhcnQgPC0gU3lzLnRpbWUoKVxuRmluYWxfUEFUVF9TdW1tYXJ5IDwtIGZvcmVhY2goc2VlZF92YWx1ZT1zZXEoMSx0b3RhbF9zZWVkcywxKSwgLmNvbWJpbmUgPSAncmJpbmQnLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC5wYWNrYWdlcyA9IHBhY2thZ2VzIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKSAlOiVcbiAgICAgIGZvcmVhY2ggKHNpemU9Q0Nfc2l6ZV9saXN0LCAuY29tYmluZSA9IFwicmJpbmRcIiwgLnBhY2thZ2VzID0gcGFja2FnZXMsIFxuICAgICAgICAgICAgICAgLm9wdGlvbnMuc25vdyA9IG9wdHMpICVkb3BhciV7XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJ1bl9vbmVfcGF0dF9zY2VuYXJpbyhzZWVkX3ZhbHVlLCBzaXplKVxuICB9XG5lbmQgPC0gU3lzLnRpbWUoKVxucGFzdGUoXCJUb3RhbCB0aW1lIHRvb2s6XCIsIGVuZC1zdGFydClcblxuI2Nsb3NlIHByb2dyZXNzIGJhciBhbmQgdHVybiBvZmYgKyByZWxlYXNlIGNsdXN0ZXJcbmNsb3NlKHBiKVxuc3RvcENsdXN0ZXIoY2wpXG5zdG9wSW1wbGljaXRDbHVzdGVyKClcblxuI3NhdmUgdGhlIGRhdGFcbnNldHdkKFwiL2hvbWUvbmVlaGFuL2RhdGEvTmFmaXMvRVNDQV9QcmltYXJ5XCIpXG5kaXJlY3RvcnkgPC0gXCIuL0RhdGEvUmVzdWx0cy9NNi9cIlxuZmlsZW5hbWUgPC0gXCJQQVRUX1N1bW1hcnlfa3BiZml4ZWRfNTBib290c3RyYXBfZXh0cmFiaWFzX2Fkai5jc3ZcIlxud3JpdGUuY3N2KEZpbmFsX1BBVFRfU3VtbWFyeSwgcGFzdGUoZGlyZWN0b3J5LCBmaWxlbmFtZSwgc2VwID0gXCJcIiksIHJvdy5uYW1lcyA9IEZBTFNFKVxuYGBgIn0= -->
+<pre class="r"><code>#nested parallelization starts here
+pb &lt;- txtProgressBar(min=0, 
+                     max = total_seeds * length(CC_size_list), 
+                     style = 3)
+progress &lt;- function(n) setTxtProgressBar(pb, n)
+opts &lt;- list(progress = progress)
+
+start &lt;- Sys.time()
+Final_PATT_Summary &lt;- foreach(seed_value=seq(1,total_seeds,1), .combine = &#39;rbind&#39;, 
+                              .packages = packages 
+                              ) %:%
+      foreach (size=CC_size_list, .combine = &quot;rbind&quot;, .packages = packages, 
+               .options.snow = opts) %dopar%{
+                                   run_one_patt_scenario(seed_value, size)
+  }
+end &lt;- Sys.time()
+paste(&quot;Total time took:&quot;, end-start)
+
+#close progress bar and turn off + release cluster
+close(pb)
+stopCluster(cl)
+stopImplicitCluster()
+
+#save the data
+setwd(&quot;/home/neehan/data/Nafis/ESCA_Primary&quot;)
+directory &lt;- &quot;./Data/Results/M6/&quot;
+filename &lt;- &quot;PATT_Summary_kpbfixed_50bootstrap_extrabias_adj.csv&quot;
 write.csv(Final_PATT_Summary, paste(directory, filename, sep = &quot;&quot;), row.names = FALSE)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiTm90ZWJvb2sgZm9yIGdlbmVyYXRpbmcgUEFUVCBFc3RpbWF0aW9ucyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKSW1wb3J0IHRoZSBjb21tb24gc2NyaXB0cywgbW9kdWxlcyBhbmQgbGlicmFyaWVzIGFuZCBzZXQgdGhlIHdvcmtpbmcgZGlyZWN0b3J5LgoKYGBge3J9CnNldHdkKCIvaG9tZS9uZWVoYW4vZGF0YS9OYWZpcy9FU0NBX0dpdCIpCnNvdXJjZSgiLi9TY3JpcHRzL2NvbW1vbi5SIikKc291cmNlKCIuL1NjcmlwdHMvcnVuX3BhdHRfc2NlbmFyaW8uUiIpCnNvdXJjZSgiLi9Nb2R1bGVzL3BfdmFsX2FkZC5SIikKc291cmNlKCIuL01vZHVsZXMvZXF1aXR5X21ldHJpY3NfbWlhby5SIikKYGBgCgpTZXQgaHlwZXJwYXJhbWV0ZXJzLgoKYGBge3J9ClRBX1dvcmxkIDwtIGRhdGEgJT4lIGZpbHRlcihSQU5EQVNTSUdOPT0xKQpUQV9zaXplIDwtIDEwMDAKdG90YWxfc2VlZHMgPC0gMjAgI251bWJlciBvZiB0b3RhbCBzY2VuYXJpb3MKSVBGX21heGl0ZXIgPC0gMTAwCnN0ZXBfc2l6ZSA8LSAxMDAKcmFuZG9taXphdGlvbl9yYXRpbyA8LSAxCm51bV9jb2wgPC0gNwpDQ19zaXplX2xpc3QgPC0gc2VxKFRBX3NpemUtc3RlcF9zaXplLCAxMDAsIC1zdGVwX3NpemUpCkVDX3NpemVfbGlzdCA8LSByYW5kb21pemF0aW9uX3JhdGlvKlRBX3NpemUgLSBDQ19zaXplX2xpc3QKYGBgCgpHZW5lcmF0ZSBhbmQgc2F2ZSByZXN1bHRzIGludG8gdGhlIGRlc2lnbmF0ZWQgZGlyZWN0b3J5LgoKYGBge3J9CiNmaW5hbCBkYXRhZnJhbWUgdGhhdCB3aWxsIGNvbnRhaW4gdGhlIHJlc3VsdApGaW5hbF9QQVRUX1N1bW1hcnkgPC0gZGF0YS5mcmFtZShtYXRyaXgobmNvbCA9IG51bV9jb2wsIG5yb3cgPSAwKSkKY29sc1BBVFQgPC0gYygiU2VlZCIsICJDQ19TaXplIiwgIlRBX0NDIiwgIlRBX0hDIiwgIlRBX0hDX1Byb3AiLCAKICAgICAgICAgICAgICAiVEFfSENfSVBGIiwgIlRBX0hDX0JvdGgiKQpjb2xuYW1lcyhGaW5hbF9QQVRUX1N1bW1hcnkpIDwtIGNvbHNQQVRUCgojc2V0dGluZ3MgZm9yIGNsdXN0ZXIgaW5pdGlhdGlvbiBhbmQgcGFyYWxsZWxpemF0aW9uCmNvcmVzPWRldGVjdENvcmVzKGxvZ2ljYWwgPSBUUlVFKSAjY2hlY2sgbnVtYmVyIG9mIGNvcmVzCmNsIDwtIG1ha2VDbHVzdGVyKGNvcmVzWzFdLTEpICN1c2luZyBhbGwgYnV0IG9uZSBub2RlcwpyZWdpc3RlckRvU05PVyhjbCkgI3JlZ2lzdGVyIHRoZSBjbHVzdGVyCgpwYWNrYWdlcyA8LSBjKCJkcGx5ciIsICJpcGZyIiwgIk1hdGNoSXQiLCAibWFyZ2luYWxlZmZlY3RzIikgI3BhY2thZ2VzIHRvIGNvcHkgaW4gZWFjaCBub2RlIGluIHRoZSBjbHVzdGVyCgpwYiA8LSB0eHRQcm9ncmVzc0JhcihtYXggPSBsZW5ndGgodG90YWxfc2VlZHMgKiBsZW5ndGgoQ0Nfc2l6ZV9saXN0KSksIHN0eWxlID0gMykKcHJvZ3Jlc3MgPC0gZnVuY3Rpb24obikgc2V0VHh0UHJvZ3Jlc3NCYXIocGIsIG4pCm9wdHMgPC0gbGlzdChwcm9ncmVzcyA9IHByb2dyZXNzKQoKI25lc3RlZCBwYXJhbGxlbGl6YXRpb24gc3RhcnRzIGhlcmUKRmluYWxfUEFUVF9TdW1tYXJ5IDwtIGZvcmVhY2goc2VlZF92YWx1ZT1zZXEoMSx0b3RhbF9zZWVkcywxKSwgLmNvbWJpbmUgPSAncmJpbmQnLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLnBhY2thZ2VzID0gcGFja2FnZXMsIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAub3B0aW9ucy5zbm93ID0gb3B0cykgJTolCiAgICAgIGZvcmVhY2ggKHNpemU9Q0Nfc2l6ZV9saXN0LCAuY29tYmluZSA9ICJyYmluZCIsIC5wYWNrYWdlcyA9IHBhY2thZ2VzKSAlZG9wYXIlewogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJ1bl9vbmVfcGF0dF9zY2VuYXJpbyhzZWVkX3ZhbHVlLCBzaXplKQogIH0KCiNjbG9zZSBwcm9ncmVzcyBiYXIgYW5kIHR1cm4gb2ZmICsgcmVsZWFzZSBjbHVzdGVyCmNsb3NlKHBiKQpzdG9wQ2x1c3RlcihjbCkKc3RvcEltcGxpY2l0Q2x1c3RlcigpCgojc2F2ZSB0aGUgZGF0YQpzZXR3ZCgiL2hvbWUvbmVlaGFuL2RhdGEvTmFmaXMvRVNDQV9HaXQiKQpkaXJlY3RvcnkgPC0gIi4vRGF0YS9SZXN1bHRzL002LyIKZmlsZW5hbWUgPC0gIlBBVFRfU3VtbWFyeS5jc3YiCndyaXRlLmNzdihGaW5hbF9QQVRUX1N1bW1hcnksIHBhc3RlKGRpcmVjdG9yeSwgZmlsZW5hbWUsIHNlcCA9ICIiKSwgcm93Lm5hbWVzID0gRkFMU0UpCmBgYAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTm90ZWJvb2sgZm9yIGdlbmVyYXRpbmcgUEFUVCBFc3RpbWF0aW9ucyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKSW1wb3J0IHRoZSBjb21tb24gc2NyaXB0cywgbW9kdWxlcyBhbmQgbGlicmFyaWVzIGFuZCBzZXQgdGhlIHdvcmtpbmcgZGlyZWN0b3J5LgoKYGBge3J9CnNldHdkKCIvaG9tZS9uZWVoYW4vZGF0YS9OYWZpcy9FU0NBX1ByaW1hcnkiKQpzb3VyY2UoIi4vU2NyaXB0cy9jb21tb24uUiIpCnNvdXJjZSgiLi9TY3JpcHRzL3J1bl9wYXR0X3NjZW5hcmlvLlIiKQpzb3VyY2UoIi4vTW9kdWxlcy9wX3ZhbF9hZGQuUiIpCnNvdXJjZSgiLi9Nb2R1bGVzL2VxdWl0eV9tZXRyaWNzX21pYW8uUiIpCmBgYAoKU2V0IGh5cGVycGFyYW1ldGVycy4KCmBgYHtyfQpUQV9Xb3JsZCA8LSBkYXRhICU+JSBmaWx0ZXIoUkFOREFTU0lHTj09MSkKVEFfc2l6ZSA8LSAxMDAwCnRvdGFsX3NlZWRzIDwtIDE1ICNudW1iZXIgb2YgdG90YWwgc2NlbmFyaW9zCnRvdGFsX3N1Y2Nlc3MgPC0gNTAgI251bWJlciBvZiBpbm5lciBib290c3RyYXBzCklQRl9tYXhpdGVyIDwtIDEwMApzdGVwX3NpemUgPC0gMjUwCnJhbmRvbWl6YXRpb25fcmF0aW8gPC0gMQpudW1fY29sIDwtIDcKQ0Nfc2l6ZV9saXN0IDwtIHNlcShUQV9zaXplLCAwLCAtc3RlcF9zaXplKQpFQ19zaXplX2xpc3QgPC0gcmFuZG9taXphdGlvbl9yYXRpbypUQV9zaXplIC0gQ0Nfc2l6ZV9saXN0CmBgYAoKR2VuZXJhdGUgYW5kIHNhdmUgcmVzdWx0cyBpbnRvIHRoZSBkZXNpZ25hdGVkIGRpcmVjdG9yeS4KCmBgYHtyfQojZmluYWwgZGF0YWZyYW1lIHRoYXQgd2lsbCBjb250YWluIHRoZSByZXN1bHQKRmluYWxfUEFUVF9TdW1tYXJ5IDwtIGRhdGEuZnJhbWUobWF0cml4KG5jb2wgPSBudW1fY29sLCBucm93ID0gMCkpCmNvbHNQQVRUIDwtIGMoIlNlZWQiLCAiQ0NfU2l6ZSIsICJUQV9DQyIsICJUQV9IQyIsICJUQV9IQ19Qcm9wIiwgCiAgICAgICAgICAgICAgIlRBX0hDX0lQRiIsICJUQV9IQ19Cb3RoIikKY29sbmFtZXMoRmluYWxfUEFUVF9TdW1tYXJ5KSA8LSBjb2xzUEFUVAoKI3NldHRpbmdzIGZvciBjbHVzdGVyIGluaXRpYXRpb24gYW5kIHBhcmFsbGVsaXphdGlvbgpjb3Jlcz1kZXRlY3RDb3Jlcyhsb2dpY2FsID0gVFJVRSkgI2NoZWNrIG51bWJlciBvZiBjb3JlcwpjbCA8LSBtYWtlQ2x1c3Rlcihjb3Jlc1sxXS0xKSAjdXNpbmcgYWxsIGJ1dCBvbmUgbm9kZXMKcmVnaXN0ZXJEb1NOT1coY2wpICNyZWdpc3RlciB0aGUgY2x1c3RlcgoKcGFja2FnZXMgPC0gYygiZHBseXIiLCAiaXBmciIsICJNYXRjaEl0IiwgIm1hcmdpbmFsZWZmZWN0cyIsICJ0YWJsZW9uZSIsICJzdXJ2aXZhbCIpICNwYWNrYWdlcyB0byBjb3B5IGluIGVhY2ggbm9kZSBpbiB0aGUgY2x1c3RlcgoKYGBgCgpgYGB7cn0KI25lc3RlZCBwYXJhbGxlbGl6YXRpb24gc3RhcnRzIGhlcmUKcGIgPC0gdHh0UHJvZ3Jlc3NCYXIobWluPTAsIAogICAgICAgICAgICAgICAgICAgICBtYXggPSB0b3RhbF9zZWVkcyAqIGxlbmd0aChDQ19zaXplX2xpc3QpLCAKICAgICAgICAgICAgICAgICAgICAgc3R5bGUgPSAzKQpwcm9ncmVzcyA8LSBmdW5jdGlvbihuKSBzZXRUeHRQcm9ncmVzc0JhcihwYiwgbikKb3B0cyA8LSBsaXN0KHByb2dyZXNzID0gcHJvZ3Jlc3MpCgpzdGFydCA8LSBTeXMudGltZSgpCkZpbmFsX1BBVFRfU3VtbWFyeSA8LSBmb3JlYWNoKHNlZWRfdmFsdWU9c2VxKDEsdG90YWxfc2VlZHMsMSksIC5jb21iaW5lID0gJ3JiaW5kJywgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC5wYWNrYWdlcyA9IHBhY2thZ2VzIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICApICU6JQogICAgICBmb3JlYWNoIChzaXplPUNDX3NpemVfbGlzdCwgLmNvbWJpbmUgPSAicmJpbmQiLCAucGFja2FnZXMgPSBwYWNrYWdlcywgCiAgICAgICAgICAgICAgIC5vcHRpb25zLnNub3cgPSBvcHRzKSAlZG9wYXIlewogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJ1bl9vbmVfcGF0dF9zY2VuYXJpbyhzZWVkX3ZhbHVlLCBzaXplKQogIH0KZW5kIDwtIFN5cy50aW1lKCkKcGFzdGUoIlRvdGFsIHRpbWUgdG9vazoiLCBlbmQtc3RhcnQpCgojY2xvc2UgcHJvZ3Jlc3MgYmFyIGFuZCB0dXJuIG9mZiArIHJlbGVhc2UgY2x1c3RlcgpjbG9zZShwYikKc3RvcENsdXN0ZXIoY2wpCnN0b3BJbXBsaWNpdENsdXN0ZXIoKQoKI3NhdmUgdGhlIGRhdGEKc2V0d2QoIi9ob21lL25lZWhhbi9kYXRhL05hZmlzL0VTQ0FfUHJpbWFyeSIpCmRpcmVjdG9yeSA8LSAiLi9EYXRhL1Jlc3VsdHMvTTYvIgpmaWxlbmFtZSA8LSAiUEFUVF9TdW1tYXJ5X2twYmZpeGVkXzUwYm9vdHN0cmFwX2V4dHJhYmlhc19hZGouY3N2Igp3cml0ZS5jc3YoRmluYWxfUEFUVF9TdW1tYXJ5LCBwYXN0ZShkaXJlY3RvcnksIGZpbGVuYW1lLCBzZXAgPSAiIiksIHJvdy5uYW1lcyA9IEZBTFNFKQpgYGAK</div>
 
 
 

@@ -6,7 +6,7 @@ output: html_notebook
 Import the common scripts, modules and libraries and set the working directory.
 
 ```{r}
-setwd("/home/neehan/data/Nafis/ESCA_Git")
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 source("./Scripts/common.R")
 source("./Scripts/run_patt_scenario.R")
 source("./Modules/p_val_add.R")
@@ -16,10 +16,10 @@ source("./Modules/equity_metrics_miao.R")
 Import the result file that contains the LDM Summary. It was generated using 'generate_ldm_data.rmd' notebook.
 
 ```{r}
-setwd("/home/neehan/data/Nafis/ESCA_Git")
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 directory <- "./Data/Results/M6/"
-filename <- "LDM_Summary.csv"
-Final_PATT_Summary <- read.csv(paste(directory, filename, sep = ""))
+filename <- "LDM_Summary_extrabias.csv"
+Final_LDM_Summary <- read.csv(paste(directory, filename, sep = ""))
 ```
 
 Some of the equity variables (Race, Gender, Age) might have missing subgroups in one or more populations (CC Size). That results in Infinity when we calculate equity. Here I replace the infinities with max_value + 0.5 where max_value is the maximum value in the whole Final LDM Summary matrix. So all infinite values are replaced with one specific value. We do this to retain the information of which subgroups are still missing. This helps with the case that synthetic control arms are helping with compensating for missing subgroups.
@@ -117,6 +117,10 @@ r4 <- return_plot("Race_or_Ethnicity", "Hispanic")
 r5 <- return_plot("Race_or_Ethnicity", "Other")
 ```
 
+```{r}
+g1
+```
+
 ```{r warning=FALSE}
 ggarrange(g1,g2, nrow=1,
           common.legend = TRUE, legend = "bottom")
@@ -128,8 +132,7 @@ ggarrange(a1,a2, nrow=1,
 
 ```
 
-```{r warning=FALSE}
-ggarrange(r1, r2, r3, r4, r5, nrow=2, ncol=3,
+```{r}
+ggarrange(r1,r2,r3,r4,r5, nrow=3, ncol=2,
           common.legend = TRUE, legend = "bottom")
-
 ```

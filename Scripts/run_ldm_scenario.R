@@ -1,17 +1,7 @@
-setwd("/home/neehan/data/Nafis/ESCA_Git")
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 source("./Scripts/common.R")
 source("./Modules/p_val_add.R")
 source("./Modules/equity_metrics_miao.R")
-
-TA_World <- data %>% filter(RANDASSIGN==1)
-TA_size <- 1000
-total_seeds <- 20
-IPF_maxiter <- 100
-step_size <- 100
-randomization_ratio <- 1
-num_col <- 10
-CC_size_list <- seq(TA_size-step_size, 100, -step_size)
-EC_size_list <- randomization_ratio*TA_size - CC_size_list
 
 confidence_interval <- function(vector, interval) {
   # Standard deviation of sample
@@ -49,6 +39,7 @@ get_matched_data <- function(population, pscore){
                              Smoker = factor(Smoker),
                              FPG = factor(FPG),
                              TC = factor(TC),
+                             CVDPOINTS = factor(CVDPOINTS),
                              GFRESTIMATE = factor(GFRESTIMATE))
   
   m.out <- matchit(RANDASSIGN ~ Age_Group + Gender + Race_or_Ethnicity + Education +
@@ -81,14 +72,9 @@ run_one_ldm_scenario <- function(seed_value, CC_Size){
   EC_world <- external_population %>% filter(RANDASSIGN==0)
   
   W_EC_bias_ipf <- get_ECWorld_Bias_weights(dat = EC_world, maxIter = IPF_maxiter)
-  Biased_EC_world <- EC_world[sample(seq_len(nrow(EC_world)), 
-                                     size = nrow(EC_world), 
+  Biased_EC_world <- EC_world[sample(seq_len(nrow(EC_world)),
+                                     size = nrow(EC_world),
                                      replace = TRUE, prob = W_EC_bias_ipf),]
-  
-  #create the propensity score model - propensity to get in the trial
-  M <- get_propensity_model(do.call("rbind", list(TA %>% mutate(inTrial = 1),
-                                                  CC_World %>% mutate(inTrial = 1),
-                                                  Biased_EC_world %>% mutate(inTrial = 0))))
   
   LDM_CC_list <- list()
   LDM_HC_Prop_list <- list()
@@ -99,15 +85,19 @@ run_one_ldm_scenario <- function(seed_value, CC_Size){
   flag <- 1
   n_plus_sum <- 1
   success_counter <-1
-  total_success <- 10
   inner_seed <- 1
+  
+  set.seed(inner_seed)
+  CC <- sample_n(CC_World %>% filter(RANDASSIGN==0), CC_Size)
+  
+  #create the propensity score model - propensity to get in the trial
+  M <- get_propensity_model(do.call("rbind", list(TA %>% mutate(inTrial = 1),
+                                                  CC %>% mutate(inTrial = 1),
+                                                  Biased_EC_world %>% mutate(inTrial = 0))))
   
   while (success_counter <= total_success){ #loops 10 times
     
     print(paste("n=", success_counter))
-    
-    set.seed(inner_seed)
-    CC <- sample_n(CC_World %>% filter(RANDASSIGN==0), CC_Size)
     
     #<- Collect LDM_CC 
     LDM_CC_three <- get_LDM_from_count(CC) %>% select(VAR, Level, LDM)
@@ -122,24 +112,33 @@ run_one_ldm_scenario <- function(seed_value, CC_Size){
       set.seed(inner_seed + n_plus_sum)
       unmatched_EC <- sample_n(Biased_EC_world, randomization_ratio * TA_size - CC_Size)
       
-      #get propensity score of this unmatched EC sample
-      ps <- get_propensity_score(M, rbind(TA, unmatched_EC)) #contains MASKID, RANDASSIGN and PRS
-      
-      #get matched EC with weights
-      matched_EC_df <- get_matched_data(rbind(TA, unmatched_EC), unlist(ps$pr_score))
-      matched_EC <- matched_EC_df %>% select(MASKID:SEATSYS)
-      matched_EC_weights <- matched_EC_df$weights #contains only EC weights
-      
+      if (nrow(unmatched_EC)!=0){
+        
+        #get propensity score of this unmatched EC sample
+        ps <- get_propensity_score(M, rbind(TA, unmatched_EC)) #contains MASKID, RANDASSIGN and PRS
+        
+        #get matched EC with weights
+        matched_EC_df <- get_matched_data(rbind(TA, unmatched_EC), unlist(ps$pr_score))
+        matched_EC <- matched_EC_df %>% select(MASKID:EVENT)
+        matched_EC_weights <- matched_EC_df$weights #contains only EC weights
+      }
       
       #create matched and unmatched HC
       unmatched_HC <- rbind(CC, unmatched_EC)
-      matched_HC <- rbind(CC, matched_EC) #just contains maskid:seatsys
-      matched_HC_weights <- c(rep(1, nrow(CC)), matched_EC_weights)
-      matched_HC_df <- matched_HC
-      matched_HC_df$weights <- matched_HC_weights
       
-      flag <- check_subgroup_counts(age_sbgrps = 2, gender_sbgrps = 2, race_sbgrps = 5, 
-                                    gfr_sbgrps = 2, TA = TA, HC = matched_HC)
+      if (nrow(unmatched_EC)!=0){
+        matched_HC <- rbind(CC, matched_EC) #just contains maskid:EVENT
+        matched_HC_weights <- c(rep(1, nrow(CC)), matched_EC_weights)
+        matched_HC_df <- matched_HC
+        matched_HC_df$weights <- matched_HC_weights
+      }
+      else{
+        matched_HC <- unmatched_HC
+        matched_HC_df <- matched_HC
+      }
+      
+      flag <- check_subgroup_counts(gender_sbgrps = 2, race_sbgrps = 5, 
+                                    cvd_sbgrps = 2, frs_sbgrps = 2, TA = TA, HC = matched_HC)
       if (flag==1){
         break
       }
@@ -177,7 +176,7 @@ run_one_ldm_scenario <- function(seed_value, CC_Size){
     matched_HC_IPF_sample_df <- matched_HC_df[sample(seq_len(nrow(matched_HC_df)), 
                                                      size = nrow(TA), replace = TRUE, prob = W_matched_HC_ipf),]
     
-    matched_HC_IPF_sample <- matched_HC_IPF_sample_df %>% select(MASKID:SEATSYS)
+    matched_HC_IPF_sample <- matched_HC_IPF_sample_df %>% select(MASKID:EVENT)
     matched_HC_IPF_sample_weights <- matched_HC_IPF_sample_df$weights
     
     #<- Collect LDM_TA_IPF, LDM_HC_IPF

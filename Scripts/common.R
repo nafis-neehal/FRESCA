@@ -20,6 +20,11 @@ suppressPackageStartupMessages({
   library(foreach) #
   library(ggpubr)
   library(gtools) #gives character based sort in mixedsort() #
+  library(tableone) #for calculating ASMD
+  library(reshape2) #for making long form data with datamelt
+  library(survival)
+  library(survminer)
+  library(gtsummary)
 })
 
 
@@ -64,42 +69,45 @@ get_IPF_weights <- function(dat, maxIter){
   
 }
 
-#mote: using military population ratio
+#note: using military population ratio
 get_ECWorld_Bias_weights <- function(dat, maxIter){
   #fix the target distributions from TP
   targets <- list()
-  targets$Age_Group <- tibble(
-    '1' = 40, #59+ =   40   #NHANES=69
-    '0' = 60  #40-59 = 60   #NHANES=31
-  )
-  targets$Gender <- tibble(
-    'Male' = 72.6,   #change=72.6
-    'Female' = 27.4  #change=27.4
-  )
+  # targets$Age_Group <- tibble(
+  #   '1' = 40, #59+ =   40   #NHANES=69
+  #   '0' = 60  #40-59 = 60   #NHANES=31
+  # )
   targets$Race_or_Ethnicity <- tibble(
     '1' = 20.2, #black original = 28, change = 20.2
     '0' = 54, #white original = 57, change = 54
     '3' = 17.2,  #hispanic original = 12, change = 17.2
     '4' = 1.7, #other orig = 0.3, change = remaining
-    '2' = 6.0   #asian orig = 1, change = 6.9
+    '2' = 6.9   #asian orig = 1, change = 6.9
   )
-  # targets$CVDPOINTS <- tibble( #remove this from biasing
-  #   'High' = 20.000,
-  #   'Low' = 80.000
+  targets$Gender <- tibble(
+    'Male' = 72.6, #change=72.6
+    'Female' = 27.4   #change=27.4
+  )
+  # targets$GFRESTIMATE <- tibble(
+  #   'Normal' = 60.0,
+  #   'Disease' = 40.0
   # )
-  targets$GFRESTIMATE <- tibble( 
-    'Disease' = 40.000, #changed already
-    'Normal' = 60.000
+  targets$CVDPOINTS <- tibble(
+    'High' = 45.0,
+    'Moderate' = 55.0
+  )
+  targets$CVDHISTORY <- tibble(
+    '1' = 45.000,
+    '0' = 55.000
   )
   
-  var_list <- c("Age_Group", "Gender", "Race_or_Ethnicity", 'GFRESTIMATE')
+  var_list <- c("Race_or_Ethnicity", 'Gender', 'CVDPOINTS', 'CVDHISTORY')
   
   dat <- dat %>% select(unlist(var_list))
   
-  dat2 <- dat %>% mutate(Age_Group = recode(Age_Group,
-                                            '40-59' = 0,
-                                            '59+' = 1),
-                         Race_or_Ethnicity = recode(Race_or_Ethnicity,
+  
+  #Age_Group = recode(Age_Group, '40-59'=0, '59+'=1),
+  dat2 <- dat %>% mutate(Race_or_Ethnicity = recode(Race_or_Ethnicity,
                                                     'NH White' = 0,
                                                     'NH Black' = 1,
                                                     'NH Asian' = 2,
@@ -180,19 +188,19 @@ get_LDM_from_count <- function(trialPopulation) {
   return (ldm_df)
 }
 
-check_subgroup_counts <- function(age_sbgrps, gender_sbgrps, race_sbgrps, gfr_sbgrps, TA, HC) {
+check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, cvd_sbgrps, frs_sbgrps, TA, HC) {
   flag <- 1
-  if ((length(unique(TA$Age_Group)) != age_sbgrps) | 
+  if ((length(unique(TA$CVDHISTORY)) != cvd_sbgrps) |
+      (length(unique(TA$CVDPOINTS)) != frs_sbgrps) |
       (length(unique(TA$Gender)) != gender_sbgrps) |
-      (length(unique(TA$GFRESTIMATE)) != gfr_sbgrps) |
       (length(unique(TA$Race_or_Ethnicity)) != race_sbgrps)){
     flag <- 0
     return(flag)
   }
-  else if ((length(unique(HC$Age_Group)) != age_sbgrps) | 
-      (length(unique(HC$Gender)) != gender_sbgrps) |
-      (length(unique(HC$GFRESTIMATE)) != gfr_sbgrps) |
-      (length(unique(HC$Race_or_Ethnicity)) != race_sbgrps)){
+  else if ((length(unique(HC$CVDHISTORY)) != cvd_sbgrps) |
+           (length(unique(HC$CVDPOINTS)) != frs_sbgrps) |
+           (length(unique(HC$Gender)) != gender_sbgrps) |
+           (length(unique(HC$Race_or_Ethnicity)) != race_sbgrps)){
     flag <- 0
     return(flag)
   }
@@ -217,20 +225,31 @@ get_LDM_summary<- function(TA, CC, EC_candidate, HC, IPF_TA, IPF_HC){
 }
 
 nhanes <- read.csv("./Data/Processed/nhanes_hypertension.csv")
-monthly_SPRINT_data <- read.csv("./Data/Processed/SPRINT_monthly_bp.csv")
+#monthly_SPRINT_data <- read.csv("./Data/Processed/SPRINT_monthly_bp.csv")
 baseline_SPRINT_data <- read.csv("./Data/Processed/SPRINT_example.csv")
 baseline_SPRINT_data <- na.omit(baseline_SPRINT_data)
+primary_outcome_data <- read.csv("./Data/Processed/primarysurv.csv")
 
-month <- '18M'
-month_df <- monthly_SPRINT_data %>% 
-  filter(VISITCODE==month) %>%
-  select(MASKID, SEATSYS)
-data <- baseline_SPRINT_data %>% 
-  inner_join(month_df, by='MASKID') %>% 
-  select(MASKID:SEATSYS)
-data <- na.omit(data)
-data <- data %>% mutate(GFRESTIMATE = ifelse(GFRESTIMATE>=60,'Normal','Disease')) %>%
-  select(MASKID:SEATSYS)
+data <- baseline_SPRINT_data %>%
+  inner_join(primary_outcome_data, by="MASKID") %>%
+  mutate(CVDHISTORY  = factor(CVDHISTORY),
+         CVDPOINTS   = if_else(CVDPOINTS<=19,'Moderate', 'High'),
+         GFRESTIMATE = if_else(GFRESTIMATE>=60, 'Normal', 'Disease')) %>%
+  select(MASKID:GFRESTIMATE, EVENTDAYS, EVENTDAYS_POSTI, EVENT)
 
-#CVDPOINTS = if_else((Gender=='Male' & CVDPOINTS>=13)|(Gender=='Female' & CVDPOINTS>=16), 'High', 'Low'),
+datap <- data %>% mutate(EVENT = ifelse(EVENTDAYS<=1190, EVENT, 0))
+
+#https://www.niddk.nih.gov/health-information/professionals/advanced-search/explain-kidney-test-results
+
+# month <- '18M'
+# month_df <- monthly_SPRINT_data %>% 
+#   filter(VISITCODE==month) %>%
+#   select(MASKID, SEATSYS)
+# data <- baseline_SPRINT_data %>% 
+#   inner_join(month_df, by='MASKID') %>% 
+#   select(MASKID:SEATSYS)
+# data <- na.omit(data)
+# data <- data %>% mutate(CVDPOINTS = if_else((Gender=='Male' & CVDPOINTS>=13)|(Gender=='Female' & CVDPOINTS>=16), 'High', 'Low')
+#                         ,GFRESTIMATE = ifelse(GFRESTIMATE>=60,'Normal','Disease')) %>%
+#   select(MASKID:SEATSYS)
 
