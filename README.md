@@ -1,2 +1,2 @@
-# EquiSCAT
-Equitable Synthetic Control Arm testbed Framework (EquiSCAF)
+# FRESCA
+Framework for Research in Equitable Synthetic Control Arms
