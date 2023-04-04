@@ -11,7 +11,8 @@ suppressPackageStartupMessages({
 ```
 
 ```{r warning=FALSE}
-setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
+#setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
+setwd("~/EquiSCAF")
 directory <- "./Data/Results/M6/"
 patt_filename <- "PATT_Summary_extrabias.csv"
 ldm_filename <- "LDM_Summary_extrabias.csv"
@@ -136,6 +137,31 @@ get_patt_plot <- function(mean_patt_summary, pop_label, col, col_low, col_high, 
     scale_color_manual(name='Population', values=c("Only CC"="black", "SPRINT"="#FF3300", "NHANES"="#339900"))
   return(p)
 }
+
+get_patt_plot_2 <- function(mean_patt_summary, pop_label, col, col_low, col_high, caption=""){
+  p <- ggplot(mean_patt_summary, aes(x=CC_Size, y=!!sym(col))) + 
+    geom_point(aes(colour=pop_label)) + 
+    geom_errorbar(aes(ymin=!!sym(col_low), ymax=!!sym(col_high), colour=pop_label, width=50)) +
+    ylim(min_point, max_point) + xlim(-100,1200) + 
+    geom_hline(aes(yintercept=sgt, color = "SPRINT"), linetype="dashed") + 
+    geom_hline(aes(yintercept=gt, color = "NHANES"), linetype="dashed") + 
+    geom_text(aes(y=sgt-0.05, x=600, label = as.character(sgt), colour = "SPRINT"), size = 5) +
+    geom_text(aes(y=gt+0.05,  x=600, label = as.character(gt),  colour = "NHANES"), size = 5) +
+    theme_classic()+
+    labs(y="PATT Estimate", caption = caption) +
+    labs(title="PATT Estimate for blah-blah") +
+    scale_x_continuous("CC_Size", labels = as.character(mean_patt_summary$CC_Size), breaks = mean_patt_summary$CC_Size) +
+    scale_color_manual(name='Population', values=c("Only CC"="black", "SPRINT"="#FF3300", "NHANES"="#339900")) + 
+    theme(axis.text = element_text(size = 15)) + 
+    theme(axis.title = element_text(size = 15)) + 
+    theme(legend.title = element_text(size = 15)) +
+    theme(legend.text = element_text(size = 15)) +
+    geom_text(aes(y=-0.5, x=0, angle=90), 
+              label = "No data for CC_Size=0", 
+              size = 5) +
+    NULL
+  return(p)
+}
 ```
 
 [**Note:**]{.underline}
@@ -163,6 +189,16 @@ p1 <- get_patt_plot(mean_patt_summary,
                     col_low = paste(col_label, "_Low", sep=""), 
                     col_high = paste(col_label, "_High", sep=""))
 p1
+```
+```{r}
+col_label = "TA_CC"
+p1.jse <- get_patt_plot_2(mean_patt_summary, 
+                    pop_label = "Only CC", 
+                    col = col_label, 
+#                    caption = "TA + CC", 
+                    col_low = paste(col_label, "_Low", sep=""), 
+                    col_high = paste(col_label, "_High", sep=""))
+p1.jse
 ```
 
 ```{r warning=FALSE}
@@ -234,6 +270,42 @@ get_ldm_plot <- function(mean_ldm_summary, var, level, pop_label, col, col_low, 
     
   return (p)
 }
+
+get_ldm_plot_2 <- function(mean_ldm_summary, var, level, pop_label, col, col_low, col_high){
+  min_point <- min(ungroup(mean_ldm_summary) %>% filter(Level==level) %>% 
+                    select(LDM_CC:LDM_HC_Prop_IPF_High))
+  max_point <- max(ungroup(mean_ldm_summary) %>% filter(Level==level) %>% 
+                    select(LDM_CC:LDM_HC_Prop_IPF_High))
+  # cap <- paste(var,":",level)
+  
+  p <- mean_ldm_summary %>% filter(Level==level) %>%
+    ggplot(aes(x=CC_Size, y=!!sym(col))) +
+    geom_point(aes(colour=pop_label)) +
+    geom_errorbar(aes(ymin=!!sym(col_low), ymax=!!sym(col_high), 
+                       colour=pop_label, width=75)) +
+    ylim(min_point, max_point) + #xlim(-100, 1200) + 
+    geom_ribbon(aes(ymin=0, ymax=0.22), alpha=0.5, fill="green", outline.type="upper") +
+    geom_hline(aes(yintercept=0.22, color = "Equity Range"), linetype="dashed") +
+    geom_text(aes(y=0.3, x=1150,
+                  label = as.character(0.22),
+                  colour = "Equity Range"), size = 5) +
+    theme_classic()+
+    labs(y="Median LDM Estimate") +
+    labs(title="Median LDM Estimate for blah-blah") +
+    scale_x_continuous("CC_Size", labels = as.character(mean_patt_summary$CC_Size), breaks = mean_patt_summary$CC_Size) +
+    scale_color_manual(name="Population", values=c("Only CC"="black", "Equity Range"="#339900")) +
+    theme(axis.text = element_text(size = 15)) +
+    theme(axis.title = element_text(size = 15)) +
+    theme(legend.title = element_text(size = 15)) +
+    theme(legend.text = element_text(size = 15)) +
+    geom_text(aes(y=1.5, x=0, angle=90), 
+              label = "No data for CC_Size=0", 
+              size = 5) +
+    NULL
+  return (p)
+}
+
+
 ```
 
 [**NOTE:**]{.underline}
@@ -264,6 +336,17 @@ l1 <- get_ldm_plot(mean_ldm_summary, var = "Gender", level = "Female",
                    col_high = paste(col_label, "_High", sep=""))
 l1
 ```
+```{r warning=FALSE}
+
+col_label = "LDM_CC"
+l1.jse <- get_ldm_plot_2(mean_ldm_summary, var = "Gender", level = "Female", 
+                   pop_label = "Only CC", 
+                   col = col_label, 
+                   col_low = paste(col_label, "_Low", sep=""), 
+                   col_high = paste(col_label, "_High", sep=""))
+l1.jse
+```
+
 
 ```{r}
 
