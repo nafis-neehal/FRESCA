@@ -140,7 +140,7 @@ get_patt_plot <- function(mean_patt_summary, pop_label, col, col_low, col_high, 
 
 [**Note:**]{.underline}
 
-To generate the plots, you have to change a value in get_ldm_plot() function everytime you call it. You need to change the first value of scale_color_manual().
+To generate the plots, you have to change a value in get_patt_plot() function everytime you call it. You need to change the first value of scale_color_manual().
 
 You can see the line- values=c("Only CC"="black", "Equity Range"="#339900"). This "Only CC" should be changed with any pop_label value below to generate corresponding plot. So, while generating each plot, the only change needed to make in the get_ldm_plot() function is in the scale_color_manual().
 

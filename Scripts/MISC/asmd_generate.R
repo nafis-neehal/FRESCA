@@ -1,12 +1,12 @@
-setwd("/home/neehan/data/Nafis/ESCA_Primary")
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 source("./Scripts/common.R")
 source("./Modules/p_val_add.R")
 source("./Modules/equity_metrics_miao.R")
 
 directory <- "./Data/Results/M6/"
-fextra <- read.csv(paste(directory,"ASMD_5sizes_30bootstrap_extrabias.csv", sep=""))
-fmed <- read.csv(paste(directory,"ASMD_5sizes_30bootstrap_medbias.csv", sep=""))
-fno <- read.csv(paste(directory,"ASMD_5sizes_30bootstrap_nobias.csv", sep=""))
+fextra <- read.csv(paste(directory,"ASMD_extrabias_NC.csv", sep=""))
+fmed <- read.csv(paste(directory,"ASMD_medbias_NC.csv", sep=""))
+fno <- read.csv(paste(directory,"ASMD_nobias_NC.csv", sep=""))
 
 
 ########## Generate ASMD Plot ##############

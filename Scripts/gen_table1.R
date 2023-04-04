@@ -122,9 +122,9 @@ Biased_EC_world_med <- EC_world[sample(seq_len(nrow(EC_world)),
 
 TA_World$group <- "TA"
 CC_World$group <- "CC"
-EC_world$group <- "EC (no bias)"
-Biased_EC_world_med$group <- "Biased EC (Sample 1)"
-Biased_EC_world_extra$group <- "Biased EC (Sample 2)"
+EC_world$group <- "EC (unbiased)"
+Biased_EC_world_med$group <- "Biased EC (Veteran)"
+Biased_EC_world_extra$group <- "Biased EC (High Risk)"
 
 population <- do.call("rbind", list(TA_World, CC_World, EC_world, Biased_EC_world_med, 
                                     Biased_EC_world_extra))
@@ -133,8 +133,8 @@ population$Education[population$Education=='<HSG'] <- "Below HSG"
 population$CVDHISTORY <- factor(population$CVDHISTORY, levels=c(0,1),
                                 labels=c("No", "Yes"))
 
-population$group <- factor(population$group, levels = c("TA", "CC", "EC (no bias)", 
-                                                        "Biased EC (Sample 1)", "Biased EC (Sample 2)"))
+population$group <- factor(population$group, levels = c("TA", "CC", "EC (unbiased)", 
+                                                        "Biased EC (Veteran)", "Biased EC (High Risk)"))
 
 label(population$Age_Group) <- "Age Group"
 label(population$Gender) <- "Gender"
@@ -149,14 +149,17 @@ label(population$CVDPOINTS) <- "Framingham Risk Score"
 label(population$SERUMCREAT) <- "Serum Creatinine mg/dL"
 label(population$GFRESTIMATE) <- "Estimated GFR within past 6 months"
 
-table1(~ Age_Group + Gender + Race_or_Ethnicity + Education | group, 
+demo <- table1(~ Age_Group + Gender + Race_or_Ethnicity + Education | group, 
        data=population, overall=F)
 
-table1(~ Smoker + FPG + TC + SBP + CVDHISTORY + CVDPOINTS + SERUMCREAT +
+labs <- table1(~ Smoker + FPG + TC + SBP + CVDHISTORY + CVDPOINTS + SERUMCREAT +
                   GFRESTIMATE | group, data=population, overall=F)
 
-
-
+directory <- "./Data/Results/M6/"
+filename <- "demo_table.csv"
+write.csv(as.data.frame(demo), paste(directory, filename, sep = ""), row.names = FALSE)
+filename <- "labs_table.csv"
+write.csv(as.data.frame(labs), paste(directory, filename, sep = ""), row.names = FALSE)
 
 
 

@@ -1,13 +1,13 @@
 setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 source("./Scripts/common.R")
-source("./Scripts/run_ldm_scenario.R")
+source("./Scripts/run_ldm_scenario_NC.R")
 source("./Modules/p_val_add.R")
 source("./Modules/equity_metrics_miao.R")
 
 TA_World <- data %>% filter(RANDASSIGN==1)
 TA_size <- 1000
 total_seeds <- 15
-total_success <- 50 #number of inner bootstraps
+total_success <- 30 #number of inner bootstraps
 IPF_maxiter <- 100
 step_size <- 250
 randomization_ratio <- 1
@@ -48,7 +48,7 @@ stopImplicitCluster()
 
 setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 directory <- "./Data/Results/M6/"
-filename <- "LDM_Summary_extrabias.csv"
+filename <- "LDM_Summary_medbias_NC.csv"
 write.csv(Final_LDM_Summary, paste(directory, filename, sep = ""), row.names = FALSE)
 
 
