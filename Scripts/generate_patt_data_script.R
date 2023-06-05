@@ -1,15 +1,15 @@
 setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 source("./Scripts/common.R")
-source("./Scripts/run_patt_scenario_NC.R")
+source("./Scripts/run_patt_scenario.R")
 source("./Modules/p_val_add.R")
 source("./Modules/equity_metrics_miao.R")
 
 TA_World <- data %>% filter(RANDASSIGN==1)
-TA_size <- 1000
-total_seeds <- 15 #number of total scenarios
-total_success <- 30 #number of inner bootstraps
+TA_size <- 2000
+total_seeds <- 10 #number of total scenarios
+total_success <- 50 #number of inner bootstraps
 IPF_maxiter <- 100
-step_size <- 250
+step_size <- 500
 randomization_ratio <- 1
 num_col <- 7
 CC_size_list <- seq(TA_size, 0, -step_size)
@@ -53,7 +53,7 @@ stopImplicitCluster()
 #save the data
 setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 directory <- "./Data/Results/M6/"
-filename <- "PATT_Summary_medbias_NC.csv"
+filename <- "PATT_Summary_nobias_2k.csv"
 write.csv(Final_PATT_Summary, paste(directory, filename, sep = ""), row.names = FALSE)
 
 

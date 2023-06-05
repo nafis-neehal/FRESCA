@@ -6,10 +6,22 @@ suppressPackageStartupMessages({
 })
 
 directory <- "./Data/Results/M6/"
-patt_filename <- "PATT_Summary_medbias_NC.csv"
+patt_filename <- "PATT_Summary_medbias_2k.csv"
 ldm_filename <- "LDM_Summary_medbias_NC.csv"
 Final_PATT_Summary <- read.csv(paste(directory, patt_filename, sep = ""))
 Final_LDM_Summary <- read.csv(paste(directory, ldm_filename, sep = ""))
+
+# ##### Life Changing Experimental Code #####
+
+Final_PATT_Summary_copy <- Final_PATT_Summary
+
+Final_PATT_Summary <- Final_PATT_Summary %>% mutate(TA_CC = exp(TA_CC),
+                              TA_HC = exp(TA_HC),
+                              TA_HC_Prop = exp(TA_HC_Prop),
+                              TA_HC_IPF = exp(TA_HC_IPF),
+                              TA_HC_Both = exp(TA_HC_Both))
+
+###########################################
 
 confidence_interval <- function(vector, interval){
   # Standard deviation of sample
@@ -24,6 +36,8 @@ confidence_interval <- function(vector, interval){
   result <- c("lower" = vec_mean - error, "upper" = vec_mean + error)
   return(result)
 }
+
+############### DO THE EXPONENT HERE FIRST BEFORE TAKING MEAN ##############
 
 #PATT
 confint <- 0.95
@@ -90,15 +104,12 @@ mean_patt_summary <- mean_patt_summary %>% filter(CC_Size == 500)
 mean_ldm_summary <- mean_ldm_summary %>% filter(CC_Size == 500)
 
 
-exp(mean_patt_summary %>% select(TA_HC_Prop:TA_HC_Prop_High))
+exp(mean_patt_summary %>% select(TA_CC:TA_HC_Both_High))
 
 mean_ldm_summary%>%select(LDM_HC_Prop:LDM_HC_Prop_High) %>%
   summarise(LDM_HC_Prop = mean(LDM_HC_Prop),
             LDM_HC_Prop_Low = mean(LDM_HC_Prop_Low),
             LDM_HC_Prop_High = mean(LDM_HC_Prop_High))
-
-
-
 
 
 

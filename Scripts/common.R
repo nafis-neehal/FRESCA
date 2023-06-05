@@ -25,6 +25,9 @@ suppressPackageStartupMessages({
   library(survival)
   library(survminer)
   library(gtsummary)
+  library(generalize)
+  library(tidyverse)
+  library(tidymodels)
 })
 
 
@@ -77,6 +80,10 @@ get_ECWorld_Bias_weights <- function(dat, maxIter){
     '1' = 40, #59+ change =   40   #NHANES=69
     '0' = 60  #40-59 change = 60   #NHANES=31
   )
+  targets$GFRESTIMATE <- tibble(
+    'Normal' = 60.0,
+    'Disease' = 40.0
+  )
   targets$Race_or_Ethnicity <- tibble(
     '1' = 20.2, #black original = 28, change = 20.2
     '0' = 54, #white original = 57, change = 54
@@ -87,10 +94,6 @@ get_ECWorld_Bias_weights <- function(dat, maxIter){
   targets$Gender <- tibble(
     'Male' = 72.6, #change=72.6
     'Female' = 27.4   #change=27.4
-  )
-  targets$GFRESTIMATE <- tibble(
-    'Normal' = 60.0,
-    'Disease' = 40.0
   )
   # targets$CVDPOINTS <- tibble(
   #   'High' = 45.0,
@@ -106,7 +109,6 @@ get_ECWorld_Bias_weights <- function(dat, maxIter){
   
   dat <- dat %>% select(unlist(var_list))
   
-  #Age_Group = recode(Age_Group, '40-59'=0, '59+'=1),
   dat2 <- dat %>% mutate(Age_Group = recode(Age_Group, '40-59'=0, '59+'=1),
                          Race_or_Ethnicity = recode(Race_or_Ethnicity,
                                                     'NH White' = 0,
@@ -114,6 +116,13 @@ get_ECWorld_Bias_weights <- function(dat, maxIter){
                                                     'NH Asian' = 2,
                                                     'Hispanic' = 3,
                                                     'Other' = 4))
+  
+  # dat2 <- dat %>% mutate(Race_or_Ethnicity = recode(Race_or_Ethnicity,
+  #                                                   'NH White' = 0,
+  #                                                   'NH Black' = 1,
+  #                                                   'NH Asian' = 2,
+  #                                                   'Hispanic' = 3,
+  #                                                   'Other' = 4))
   
   dat2 <- as_tibble(dat2)
   result <- ipu(dat2, targets, max_iterations = maxIter)
@@ -207,6 +216,25 @@ check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, age_sbgrps, gfr_sb
   }
   return(flag)
 }
+
+# check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, cvd_sbgrps, frs_sbgrps, TA, HC) {
+#   flag <- 1
+#   if ((length(unique(TA$CVDHISTORY)) != cvd_sbgrps) |
+#       (length(unique(TA$CVDPOINTS)) != frs_sbgrps) |
+#       (length(unique(TA$Gender)) != gender_sbgrps) |
+#       (length(unique(TA$Race_or_Ethnicity)) != race_sbgrps)){
+#     flag <- 0
+#     return(flag)
+#   }
+#   else if ((length(unique(HC$CVDHISTORY)) != cvd_sbgrps) |
+#            (length(unique(HC$CVDPOINTS)) != frs_sbgrps) |
+#            (length(unique(HC$Gender)) != gender_sbgrps) |
+#            (length(unique(HC$Race_or_Ethnicity)) != race_sbgrps)){
+#     flag <- 0
+#     return(flag)
+#   }
+#   return(flag)
+# }
 
 get_LDM_summary<- function(TA, CC, EC_candidate, HC, IPF_TA, IPF_HC){
   LDM_TA <- get_LDM_from_count(TA) %>% select(VAR, Level, LDM) %>% rename(LDM_TA = LDM)

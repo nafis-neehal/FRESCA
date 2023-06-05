@@ -5,7 +5,7 @@ source("./Modules/p_val_add.R")
 source("./Modules/equity_metrics_miao.R")
 
 directory <- "./Data/Results/M6/"
-patt_filename <- "PATT_Summary_extrabias.csv"
+patt_filename <- "PATT_Summary_medbias_genpkg.csv"
 ldm_filename <- "LDM_Summary_extrabias.csv"
 Final_PATT_Summary <- read.csv(paste(directory, patt_filename, sep = ""))
 Final_LDM_Summary <- read.csv(paste(directory, ldm_filename, sep = ""))
@@ -93,6 +93,7 @@ max_point <- max(mean_patt_summary %>%
 
 sgt <- 0.745 #sample
 gt <- 0.798 #population
+gt_new <- 0.757 #iptw adjusted population
 
 #plot only CC
 
@@ -117,12 +118,12 @@ get_patt_plot_2 <- function(mean_patt_summary, pop_label, col, col_low, col_high
     geom_errorbar(aes(ymin=!!sym(col_low), ymax=!!sym(col_high), colour=pop_label, width=50)) +
     ylim(min_point, max_point) + xlim(-100,1200) + 
     #geom_hline(aes(yintercept=sgt, color = "Sample HR"), linetype="dashed") + 
-    geom_hline(aes(yintercept=gt, color = "Target Population HR"), linetype="dashed") + 
+    geom_hline(aes(yintercept=gt_new, color = "Target Population HR"), linetype="dashed") + 
     theme_classic()+
     labs(y="Hazard Ratio") + #, title=paste("Hazard Ratio for", pop_label, sep = " ")
     scale_x_continuous("CC Size", labels = as.character(mean_patt_summary$CC_Size), breaks = mean_patt_summary$CC_Size) +
     scale_color_manual(name='Method', 
-                       values=c("HC + Propensity + Equity"="black", "Sample HR"="#FF3300", "Target Population HR"="#FF3300")) + 
+                       values=c("HC + Equity"="black", "Sample HR"="#FF3300", "Target Population HR"="#FF3300")) + 
     theme(axis.text = element_text(size = 25)) + 
     theme(axis.title = element_text(size = 25)) + 
     theme(legend.title = element_text(size = 25)) +
