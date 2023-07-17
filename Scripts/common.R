@@ -76,14 +76,14 @@ get_IPF_weights <- function(dat, maxIter){
 get_ECWorld_Bias_weights <- function(dat, maxIter){
   #fix the target distributions from TP
   targets <- list()
-  targets$Age_Group <- tibble(
-    '1' = 40, #59+ change =   40   #NHANES=69
-    '0' = 60  #40-59 change = 60   #NHANES=31
-  )
-  targets$GFRESTIMATE <- tibble(
-    'Normal' = 60.0,
-    'Disease' = 40.0
-  )
+  # targets$Age_Group <- tibble(
+  #   '1' = 40, #59+ change =   40   #NHANES=69
+  #   '0' = 60  #40-59 change = 60   #NHANES=31
+  # )
+  # targets$GFRESTIMATE <- tibble(
+  #   'Normal' = 60.0,
+  #   'Disease' = 40.0
+  # )
   targets$Race_or_Ethnicity <- tibble(
     '1' = 20.2, #black original = 28, change = 20.2
     '0' = 54, #white original = 57, change = 54
@@ -95,41 +95,41 @@ get_ECWorld_Bias_weights <- function(dat, maxIter){
     'Male' = 72.6, #change=72.6
     'Female' = 27.4   #change=27.4
   )
-  # targets$CVDPOINTS <- tibble(
-  #   'High' = 45.0,
-  #   'Moderate' = 55.0
-  # )
-  # targets$CVDHISTORY <- tibble(
-  #   '1' = 45.000,
-  #   '0' = 55.000
-  # )
-  
-  #var_list <- c("Race_or_Ethnicity", 'Gender', 'CVDPOINTS', 'CVDHISTORY')
-  var_list <- c("Race_or_Ethnicity", 'Gender', 'Age_Group', 'GFRESTIMATE')
-  
+  targets$CVDPOINTS <- tibble( #framingham risk score
+    'High' = 45.0,
+    'Moderate' = 55.0
+  )
+  targets$CVDHISTORY <- tibble(
+    '1' = 45.000,
+    '0' = 55.000
+  )
+
+  var_list <- c("Race_or_Ethnicity", 'Gender', 'CVDPOINTS', 'CVDHISTORY')
+  #var_list <- c("Race_or_Ethnicity", 'Gender', 'Age_Group', 'GFRESTIMATE')
+
   dat <- dat %>% select(unlist(var_list))
-  
-  dat2 <- dat %>% mutate(Age_Group = recode(Age_Group, '40-59'=0, '59+'=1),
-                         Race_or_Ethnicity = recode(Race_or_Ethnicity,
-                                                    'NH White' = 0,
-                                                    'NH Black' = 1,
-                                                    'NH Asian' = 2,
-                                                    'Hispanic' = 3,
-                                                    'Other' = 4))
-  
-  # dat2 <- dat %>% mutate(Race_or_Ethnicity = recode(Race_or_Ethnicity,
+
+  # dat2 <- dat %>% mutate(Age_Group = recode(Age_Group, '40-59'=0, '59+'=1),
+  #                        Race_or_Ethnicity = recode(Race_or_Ethnicity,
   #                                                   'NH White' = 0,
   #                                                   'NH Black' = 1,
   #                                                   'NH Asian' = 2,
   #                                                   'Hispanic' = 3,
   #                                                   'Other' = 4))
-  
+
+  dat2 <- dat %>% mutate(Race_or_Ethnicity = recode(Race_or_Ethnicity,
+                                                    'NH White' = 0,
+                                                    'NH Black' = 1,
+                                                    'NH Asian' = 2,
+                                                    'Hispanic' = 3,
+                                                    'Other' = 4))
+
   dat2 <- as_tibble(dat2)
   result <- ipu(dat2, targets, max_iterations = maxIter)
   weights <- result$weight_tbl$weight
-  
+
   return(weights)
-  
+
 }
 
 get_LDM_from_pop <- function(trialPopulation, targetPopulation){
@@ -198,36 +198,17 @@ get_LDM_from_count <- function(trialPopulation) {
   return (ldm_df)
 }
 
-check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, age_sbgrps, gfr_sbgrps, TA, HC) {
-  flag <- 1
-  if ((length(unique(TA$Age_Group)) != age_sbgrps) |
-      (length(unique(TA$GFRESTIMATE)) != gfr_sbgrps) |
-      (length(unique(TA$Gender)) != gender_sbgrps) |
-      (length(unique(TA$Race_or_Ethnicity)) != race_sbgrps)){
-    flag <- 0
-    return(flag)
-  }
-  else if ((length(unique(HC$Age_Group)) != age_sbgrps) |
-           (length(unique(HC$GFRESTIMATE)) != gfr_sbgrps) |
-           (length(unique(HC$Gender)) != gender_sbgrps) |
-           (length(unique(HC$Race_or_Ethnicity)) != race_sbgrps)){
-    flag <- 0
-    return(flag)
-  }
-  return(flag)
-}
-
-# check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, cvd_sbgrps, frs_sbgrps, TA, HC) {
+# check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, age_sbgrps, gfr_sbgrps, TA, HC) {
 #   flag <- 1
-#   if ((length(unique(TA$CVDHISTORY)) != cvd_sbgrps) |
-#       (length(unique(TA$CVDPOINTS)) != frs_sbgrps) |
+#   if ((length(unique(TA$Age_Group)) != age_sbgrps) |
+#       (length(unique(TA$GFRESTIMATE)) != gfr_sbgrps) |
 #       (length(unique(TA$Gender)) != gender_sbgrps) |
 #       (length(unique(TA$Race_or_Ethnicity)) != race_sbgrps)){
 #     flag <- 0
 #     return(flag)
 #   }
-#   else if ((length(unique(HC$CVDHISTORY)) != cvd_sbgrps) |
-#            (length(unique(HC$CVDPOINTS)) != frs_sbgrps) |
+#   else if ((length(unique(HC$Age_Group)) != age_sbgrps) |
+#            (length(unique(HC$GFRESTIMATE)) != gfr_sbgrps) |
 #            (length(unique(HC$Gender)) != gender_sbgrps) |
 #            (length(unique(HC$Race_or_Ethnicity)) != race_sbgrps)){
 #     flag <- 0
@@ -235,6 +216,25 @@ check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, age_sbgrps, gfr_sb
 #   }
 #   return(flag)
 # }
+
+check_subgroup_counts <- function(gender_sbgrps, race_sbgrps, cvd_sbgrps, frs_sbgrps, TA, HC) {
+  flag <- 1
+  if ((length(unique(TA$CVDHISTORY)) != cvd_sbgrps) |
+      (length(unique(TA$CVDPOINTS)) != frs_sbgrps) |
+      (length(unique(TA$Gender)) != gender_sbgrps) |
+      (length(unique(TA$Race_or_Ethnicity)) != race_sbgrps)){
+    flag <- 0
+    return(flag)
+  }
+  else if ((length(unique(HC$CVDHISTORY)) != cvd_sbgrps) |
+           (length(unique(HC$CVDPOINTS)) != frs_sbgrps) |
+           (length(unique(HC$Gender)) != gender_sbgrps) |
+           (length(unique(HC$Race_or_Ethnicity)) != race_sbgrps)){
+    flag <- 0
+    return(flag)
+  }
+  return(flag)
+}
 
 get_LDM_summary<- function(TA, CC, EC_candidate, HC, IPF_TA, IPF_HC){
   LDM_TA <- get_LDM_from_count(TA) %>% select(VAR, Level, LDM) %>% rename(LDM_TA = LDM)
@@ -264,7 +264,9 @@ data <- baseline_SPRINT_data %>%
   mutate(CVDHISTORY  = factor(CVDHISTORY),
          CVDPOINTS   = if_else(CVDPOINTS<=19,'Moderate', 'High'),
          GFRESTIMATE = if_else(GFRESTIMATE>=60, 'Normal', 'Disease')) %>%
-  select(MASKID:GFRESTIMATE, EVENTDAYS, EVENTDAYS_POSTI, EVENT)
+  select(MASKID:GFRESTIMATE, EVENTDAYS, EVENTDAYS_POSTI, EVENT) 
+  
+#filter(EVENTDAYS_POSTI==1) --> doing this led to results of high variance
 
 datap <- data %>% mutate(EVENT = ifelse(EVENTDAYS<=1190, EVENT, 0))
 

@@ -53,7 +53,7 @@ stopImplicitCluster()
 #save the data
 setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 directory <- "./Data/Results/M6/"
-filename <- "PATT_Summary_nobias_2k.csv"
+filename <- "PATT_Summary_extrabias_2k_amia.csv"
 write.csv(Final_PATT_Summary, paste(directory, filename, sep = ""), row.names = FALSE)
 
 

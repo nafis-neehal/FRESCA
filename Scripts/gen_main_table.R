@@ -6,7 +6,7 @@ suppressPackageStartupMessages({
 })
 
 directory <- "./Data/Results/M6/"
-patt_filename <- "PATT_Summary_medbias_2k.csv"
+patt_filename <- "PATT_Summary_extrabias_1k_posti.csv"
 ldm_filename <- "LDM_Summary_medbias_NC.csv"
 Final_PATT_Summary <- read.csv(paste(directory, patt_filename, sep = ""))
 Final_LDM_Summary <- read.csv(paste(directory, ldm_filename, sep = ""))

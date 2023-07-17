@@ -28,13 +28,6 @@ get_cox_effect <- function(population, weights){
   return (estimate)
 }
 
-get_propensity_model <- function(population){
-  m_ps <- glm(inTrial ~ Age_Group + Gender + Race_or_Ethnicity + Education +
-                Smoker + SBP + FPG + TC + CVDHISTORY + CVDPOINTS + SERUMCREAT +
-                GFRESTIMATE, data = population, family = binomial())
-  return (m_ps)
-}
-
 get_propensity_score <- function(Model, population){
   prs_df <- data.frame(MASKID = population %>% select(MASKID), 
                        RANDASSIGN = population %>% select(RANDASSIGN), 
@@ -110,12 +103,12 @@ run_one_patt_scenario <- function(seed_value, CC_Size){
   external_population <- setdiff(data, rbind(TA_World, CC_World))
   EC_world <- external_population %>% filter(RANDASSIGN==0)
   
-  # W_EC_bias_ipf <- get_ECWorld_Bias_weights(dat = EC_world, maxIter = IPF_maxiter)
-  # Biased_EC_world <- EC_world[sample(seq_len(nrow(EC_world)),
-  #                                    size = nrow(EC_world),
-  #                                    replace = TRUE, prob = W_EC_bias_ipf),]
-  
-  Biased_EC_world <- EC_world
+  W_EC_bias_ipf <- get_ECWorld_Bias_weights(dat = EC_world, maxIter = IPF_maxiter)
+  Biased_EC_world <- EC_world[sample(seq_len(nrow(EC_world)),
+                                     size = nrow(EC_world),
+                                     replace = TRUE, prob = W_EC_bias_ipf),]
+
+  #Biased_EC_world <- EC_world
   
   ATT_TA_CC_list <- 0
   ATT_TA_HC_list <- 0
@@ -140,7 +133,7 @@ run_one_patt_scenario <- function(seed_value, CC_Size){
     #save the data
     setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
     directory <- "./Data/Results/M6/"
-    filename <- "ASMD_nobias_2k.csv"
+    filename <- "ASMD_extrabias_2k_amia.csv"
     write.csv(asmd_df, paste(directory, filename, sep = ""), row.names = FALSE)
   }
   
@@ -187,9 +180,9 @@ run_one_patt_scenario <- function(seed_value, CC_Size){
         matched_HC_df <- matched_HC
       }
       
-      # flag <- check_subgroup_counts(gender_sbgrps = 2, race_sbgrps = 5, 
-      #                               cvd_sbgrps = 2, frs_sbgrps = 2, TA = TA, HC = matched_HC)
-      
+      flag <- check_subgroup_counts(gender_sbgrps = 2, race_sbgrps = 5,
+                                    cvd_sbgrps = 2, frs_sbgrps = 2, TA = TA, HC = matched_HC)
+
       # flag <- check_subgroup_counts(gender_sbgrps = 2, race_sbgrps = 5, 
       #                               age_sbgrps = 2, gfr_sbgrps = 2, TA = TA, HC = matched_HC)
       # 
