@@ -31,4 +31,5 @@ suppressPackageStartupMessages({
   library(Rmisc) #for using 95% CI built-in function
   library(plotly) #for sunburst plots
   library(fastDummies) #for creating dummy variables
+  library(sas7bdat) #for loading ALLHAT RCT
 })

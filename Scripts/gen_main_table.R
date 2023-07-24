@@ -6,8 +6,8 @@ suppressPackageStartupMessages({
 })
 
 directory <- "./Data/Results/M6/"
-patt_filename <- "PATT_Summary_extrabias_1k_posti.csv"
-ldm_filename <- "LDM_Summary_medbias_NC.csv"
+patt_filename <- "PATT_Summary_medbias_2k_amia.csv"
+ldm_filename <- "LDM_Summary_medbias_2k_amia.csv"
 Final_PATT_Summary <- read.csv(paste(directory, patt_filename, sep = ""))
 Final_LDM_Summary <- read.csv(paste(directory, ldm_filename, sep = ""))
 
@@ -101,15 +101,19 @@ mean_ldm_summary <- LDM_Summary_Inf %>%
   ungroup()
 
 mean_patt_summary <- mean_patt_summary %>% filter(CC_Size == 500)
-mean_ldm_summary <- mean_ldm_summary %>% filter(CC_Size == 500)
+mean_ldm_summary <- mean_ldm_summary %>% filter(CC_Size == 1000)
 
 
-exp(mean_patt_summary %>% select(TA_CC:TA_HC_Both_High))
+mean_LD_Final <- mean_ldm_summary %>% select(Level, LDM_TA, LDM_CC, LDM_HC_Prop, LDM_HC_IPF, LDM_HC_Prop_IPF)
 
-mean_ldm_summary%>%select(LDM_HC_Prop:LDM_HC_Prop_High) %>%
-  summarise(LDM_HC_Prop = mean(LDM_HC_Prop),
-            LDM_HC_Prop_Low = mean(LDM_HC_Prop_Low),
-            LDM_HC_Prop_High = mean(LDM_HC_Prop_High))
+# exp(mean_patt_summary %>% select(TA_CC:TA_HC_Both_High))
+# 
+# mean_ldm_summary%>%select(LDM_HC_Prop:LDM_HC_Prop_High) %>%
+#   summarise(LDM_HC_Prop = mean(LDM_HC_Prop),
+#             LDM_HC_Prop_Low = mean(LDM_HC_Prop_Low),
+#             LDM_HC_Prop_High = mean(LDM_HC_Prop_High))
+
+
 
 
 

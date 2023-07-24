@@ -38,6 +38,59 @@ read_data <- function(partition_seed, import_target=T){
   }
 }
 
+partition_data_generic <- function(data, partition_seed, import_target=T){
+  dat <- get_rct_biased_ec_data(seed_value=partition_seed, data=data, TA_Size=TA_Size, CC_Size=CC_Size, 
+                                IPF_maxiter=IPF_maxiter)
+  #get the target dataframe ready
+  if(import_target==F){
+    return(dat)
+  }
+  else{
+    target <- read.csv("./Data/Results/NHANES_Gen/NHANES_regen_20k.csv")
+    return (list(dat, target))
+  }
+}
+
+############# Functions to bias External Controls for ALLHAT trial #############
+get_BiasAllhat <- function(dat, maxIter){
+  #note: using military population ratio
+  #fix the target distributions from TP
+  targets <- list()
+  targets$Race_or_Ethnicity <- tibble(
+    '1' = 20.2, #black original = 28, change = 20.2
+    '0' = 54, #white original = 57, change = 54
+    '3' = 17.2,  #hispanic original = 12, change = 17.2
+    '4' = 1.7, #other orig = 0.3, change = remaining
+    '2' = 6.9   #asian orig = 1, change = 6.9
+  )
+  targets$Gender <- tibble(
+    'Male' = 72.6, #change=72.6
+    'Female' = 27.4   #change=27.4
+  )
+    targets$Age_Group <- tibble(
+    '1' = 40, #59+ change =   40   #NHANES=69
+    '0' = 60  #40-59 change = 60   #NHANES=31
+  )
+  
+  var_list <- c("Race_or_Ethnicity", 'Gender', 'Age_Group')
+  
+  dat <- dat %>% select(unlist(var_list))
+  
+  dat2 <- dat %>% mutate(Age_Group = recode(Age_Group, '40-59'=0, '59+'=1),
+                         Race_or_Ethnicity = recode(Race_or_Ethnicity,
+                                                    'NH White' = 0,
+                                                    'NH Black' = 1,
+                                                    'NH Asian' = 2,
+                                                    'Hispanic' = 3,
+                                                    'Other' = 4))
+  
+  dat2 <- as_tibble(dat2)
+  result <- ipu(dat2, targets, max_iterations = maxIter)
+  weights <- result$weight_tbl$weight
+  
+  return(weights)
+}
+
 ############# Functions to bias External Controls for SPRINT trial #############
 get_extraBiasSprint <- function(dat, maxIter){
   #note: using military population ratio
@@ -128,14 +181,17 @@ get_mediumBiasSprint <- function(dat, maxIter){
 ###### Function to borrow synthetic controls from EC #############
 get_matched_controls <- function(method_name, RCT, BIASED_EC, N){
   
-  #slice data to only keep propensity adjustment variables
-  trial_data <- RCT %>% select(MASKID, RANDASSIGN, Age_Group, Gender, Race_or_Ethnicity, Education,
-                               Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
-                               SERUMCREAT, GFRESTIMATE)
+  # #slice data to only keep propensity adjustment variables
+  # trial_data <- RCT %>% select(MASKID, RANDASSIGN, Age_Group, Gender, Race_or_Ethnicity, Education,
+  #                              Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
+  #                              SERUMCREAT, GFRESTIMATE)
+  # 
+  # ec_data <- BIASED_EC %>% select(MASKID, RANDASSIGN, Age_Group, Gender, Race_or_Ethnicity, Education,
+  #                                 Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
+  #                                 SERUMCREAT, GFRESTIMATE)
   
-  ec_data <- BIASED_EC %>% select(MASKID, RANDASSIGN, Age_Group, Gender, Race_or_Ethnicity, Education,
-                                  Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
-                                  SERUMCREAT, GFRESTIMATE)
+  trial_data <- RCT
+  ec_data <- BIASED_EC
   
   if(method_name=="top_n_propensity"){
     matched_controls_df <- get_top_n_propensity_from_EC(trial_data, ec_data, N)
@@ -144,8 +200,12 @@ get_matched_controls <- function(method_name, RCT, BIASED_EC, N){
     matched_controls_df <- get_one_to_one_match_from_EC(trial_data, ec_data,
                                                         replace = T, caliper = 1)
   }
+  else if(method_name=="simple_matchit"){
+    matched_controls_df <- get_simple_matchit(trial_data, ec_data, replace = F)
+  }
   
-  return (BIASED_EC[BIASED_EC$MASKID %in% matched_controls_df$MASKID,])
+  return(matched_controls_df)
+  #return (BIASED_EC[BIASED_EC$MASKID %in% matched_controls_df$MASKID,])
 }
 
 get_matched_controls_with_dummies <- function(method_name, RCT, BIASED_EC, N){
@@ -261,6 +321,34 @@ get_one_to_one_match_from_EC <- function(trial_data, ec_data, replace, caliper){
   
   matched_data <- match.data(m.out)
   return(matched_data %>% filter(RANDASSIGN==0)) #contains weights
+}
+
+get_simple_matchit <- function(trial_data, ec_data, replace){
+  variables_to_convert <- c("Age_Group", "Gender", "Race_or_Ethnicity", "Education", 
+                            "Prior_HypTreat", "Smoker", "Had_MIS", "Had_CRV", "Had_ASCVD", 
+                            "Had_MajorST", "Had_T2D", "Had_HDLC", "Had_LVH_ELCT", "Had_LVH_ECHO", 
+                            "Has_CHD")
+  for (var in variables_to_convert) {
+    trial_data[[var]] <- as.factor(trial_data[[var]])
+    ec_data[[var]] <- as.factor(ec_data[[var]])
+  }
+  all_vars <- colnames(trial_data)
+  len <- length(all_vars)-2
+  matching_vars_list <- all_vars[2:len]
+  
+  All_strings <- lapply(matching_vars_list, as.character)
+  var_string <- paste(All_strings, collapse = " + ")
+  response_var <- "RANDASSIGN"
+  formula <- reformulate(termlabels = var_string, response = response_var)
+  
+  population <- rbind(trial_data %>% filter(RANDASSIGN==1), 
+                      ec_data)
+  
+  m1 <- matchit(formula, data = population, method = "nearest", distance = "glm", replace = T)
+  matched_data <- match.data(m1)
+  
+  return(matched_data %>% filter(RANDASSIGN==0)) #return the matched controls data
+  
 }
 
 ################################################################################
