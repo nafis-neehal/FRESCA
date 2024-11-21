@@ -1,0 +1,102 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
+source("./Wrapper/load_packages.R")
+source("./Wrapper/wrapper_modules.R")
+source("./Wrapper/load_data_formatted.R")
+allhat_data <- read.csv("./Data/ALLHAT_data/ALLHAT_processed_secondary.csv")
+allhat_data$X <- NULL
+```
+
+```{r}
+#create the treated/control populations
+ctrl <- allhat_data %>% filter(RANDASSIGN==2) #Ch
+tr1 <- allhat_data %>% filter(RANDASSIGN==3) #Am
+tr2 <- allhat_data %>% filter(RANDASSIGN==4) #Li
+```
+
+```{r}
+## Split the Trial population into TA, CC and EC
+## Change RANDASSIGN to 0 for controls and 1 for treated
+g1 <- rbind(tr1, ctrl)
+g1 <- g1 %>% mutate(RANDASSIGN = ifelse(RANDASSIGN==2, 0, 1))
+g2 <- rbind(tr2, ctrl)
+g2 <- g2 %>% mutate(RANDASSIGN = ifelse(RANDASSIGN==2, 0, 1))
+```
+
+```{r}
+IPF_maxiter <- 100
+num_seed <- 10
+scale_to <- 100
+TA_Size <- 1000
+CC_Size <- 500
+SC_Size <- TA_Size - CC_Size
+outcome_days_column <- "HF_EVENTDAYS"
+outcome_status_column <- "HF_EVENT"
+outcome_name <- "HF"
+weight_method <- "ipf" #"gen" or "ipf"
+```
+
+
+```{r}
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
+
+get_toy_dataframes <- function(i){
+  all_data <- partition_data_generic(g1, partition_seed=i, import_target = F)
+  RCT <- data.frame(all_data[1])
+  BIASED_EC <- data.frame(all_data[2])
+  
+  trial_data <- RCT
+  ec_data <- BIASED_EC
+  
+  vars_to_match <- c("Age_Group", "Gender", "Race_or_Ethnicity", "Education", 
+                     "Prior_HypTreat", "SBP", "DBP", "Smoker","Had_MIS", "Had_CRV","Had_ASCVD",
+                     "Had_MajorST","Had_T2D","Had_HDLC", "Had_LVH_ELCT","Had_LVH_ECHO","Has_CHD", "BMI")
+  
+  matching_vars_list <- vars_to_match
+  All_strings <- lapply(matching_vars_list, as.character)
+  var_string <- paste(All_strings, collapse = " + ")
+  trial_data$inTrial <- 1
+  ec_data$inTrial <- 0
+  response_var <- "inTrial"
+  new_formula <- reformulate(termlabels = var_string, response = response_var)
+  
+  training_population <- do.call("rbind", list(trial_data, ec_data))
+
+  #step 1: get the propensity model
+  propensity_model <- glm(new_formula, data = training_population, family = binomial())
+
+  #step 2: use the model to predict ps of external data
+  pr_score_ec <- predict(propensity_model, ec_data, type = "response")
+  pr_score_cc <- predict(propensity_model, trial_data %>% filter(RANDASSIGN==0), type = "response")
+  pr_score_ta <- predict(propensity_model, trial_data %>% filter(RANDASSIGN==1), type = "response")
+
+  #step 3: combine propensity score of each patient with their data and create new dataframe
+  new_ta <-  cbind(trial_data %>% filter(RANDASSIGN==1) %>% select(Age_Group, Gender, Race_or_Ethnicity),
+                   data.frame(pr_score=pr_score_ta)) %>% mutate(group="TA")
+  new_cc <-  cbind(trial_data %>% filter(RANDASSIGN==0) %>% select(Age_Group, Gender, Race_or_Ethnicity),
+                   data.frame(pr_score=pr_score_cc)) %>% mutate(group="CC")
+  new_ec <-  cbind(ec_data %>% select(Age_Group, Gender, Race_or_Ethnicity),
+                   data.frame(pr_score=pr_score_ec)) %>% mutate(group="EC")
+  new_ec_sorted <- head(arrange(new_ec,desc(pr_score)), n = 1000)
+
+  #return combined frame
+  return(do.call("rbind", list(new_ta, new_cc, new_ec_sorted)))
+}
+```
+
+
+```{r}
+cols <- c("Age_Group","Gender","Race_or_Ethnicity", "pr_score", "group", "seed")
+final_df <- data.frame(matrix(nrow = 0, ncol = length(cols)))
+colnames(final_df) <- cols
+for (i in 1:num_seed){
+  df <- get_toy_dataframes(i)
+  df$seed <- i
+  final_df <- rbind(final_df, df)
+}
+```

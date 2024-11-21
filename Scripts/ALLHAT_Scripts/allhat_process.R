@@ -9,7 +9,8 @@ allhat_data<-read.sas7bdat("./Data/ALLHAT_data/allhat_key.sas7bdat")
 allhat_selected_raw<- allhat_data[c('RZGROUP','AGE','SEX','RACE','HISPANIC','EDUCAT', 'BLMEDS2',
                                     'BV2SBP', 'BV2DBP', 'CURSMOKE', 'MISTROKE', 'HXCABG', 
                                     'OASCVD', 'STDEPR', 'DIABETES', 'HDLLT35', 'LVHECG', 'WALL25',
-                                    'LCHD', 'BLBMI', 'AFGLUC','ACHOL','EP_CHD', 'DYCHD')]
+                                    'LCHD', 'BLBMI', 'AFGLUC','ACHOL','EP_CHD', 'DYCHD', 'CCVD', 'DYCCVD', 'STROKE', 'DYSTROKE',
+                                    'CHF', 'DYCHF')]
 
 #1 means Yes, 2 means No --> in all binary cases (unless indicated otherwise)
 allhat_selected_processed<- mutate(allhat_selected_raw,
@@ -45,10 +46,16 @@ allhat_selected_processed<- mutate(allhat_selected_raw,
                                    
                                    #FPG = ifelse(AFGLUC <100,'Glucose<100',ifelse(AFGLUC <126,'Glucose 100-125','Glucose>=126')),
                                    #TC = ifelse(ACHOL<200,'Normal TC','High TC'),
-                                   EVENT = EP_CHD,
-                                   EVENTDAYS = DYCHD
+                                   EVENT = ifelse(EP_CHD==2, 0, 1),
+                                   EVENTDAYS = DYCHD,
+                                   CVD_EVENT = ifelse(CCVD==2, 0, 1),
+                                   CVD_EVENTDAYS = DYCCVD,
+                                   STROKE_EVENT = ifelse(STROKE==2, 0, 1),
+                                   STROKE_EVENTDAYS = DYSTROKE,
+                                   HF_EVENT = ifelse(CHF==2, 0, 1),
+                                   HF_EVENTDAYS = DYCHF
                                    
-)%>% select(RANDASSIGN:EVENTDAYS)
+)%>% select(RANDASSIGN:HF_EVENTDAYS)
 
 
 allhat_selected_processed$Race_or_Ethnicity <- factor(allhat_selected_processed$Race_or_Ethnicity, levels = c("NH White", "NH Black", "NH Asian", "Hispanic", "Other"))
@@ -57,8 +64,8 @@ allhat_selected_processed$Education<- factor(allhat_selected_processed$Education
 
 allhat_final <- na.omit(allhat_selected_processed)
 
-write.csv(allhat_selected_processed,'./Data/ALLHAT_data/ALLHAT_processed_with_NA.csv') 
-write.csv(allhat_final,'./Data/ALLHAT_data/ALLHAT_processed.csv') 
+write.csv(allhat_selected_processed,'./Data/ALLHAT_data/ALLHAT_processed_with_NA_secondary.csv') 
+write.csv(allhat_final,'./Data/ALLHAT_data/ALLHAT_processed_secondary.csv') 
 
 
 

@@ -32,4 +32,7 @@ suppressPackageStartupMessages({
   library(plotly) #for sunburst plots
   library(fastDummies) #for creating dummy variables
   library(sas7bdat) #for loading ALLHAT RCT
+  library(cobalt)
+  library(AICcmodavg) #for AIC calculation
+  library(finalfit)
 })

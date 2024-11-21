@@ -10,7 +10,7 @@ total_seeds <- 15
 total_success <- 30 #number of inner bootstraps
 IPF_maxiter <- 100
 step_size <- 250
-randomization_ratio <- 1
+randomization_ratio <- 1 
 num_col <- 10
 CC_size_list <- seq(TA_size, 0, -step_size)
 EC_size_list <- randomization_ratio*TA_size - CC_size_list

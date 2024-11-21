@@ -67,22 +67,36 @@ get_BiasAllhat <- function(dat, maxIter){
     'Male' = 72.6, #change=72.6
     'Female' = 27.4   #change=27.4
   )
-    targets$Age_Group <- tibble(
+  targets$Age_Group <- tibble(
     '1' = 40, #59+ change =   40   #NHANES=69
     '0' = 60  #40-59 change = 60   #NHANES=31
   )
+  targets$Smoker <- tibble(
+    '0' = 40,
+    '1' = 60
+  )
+  targets$Had_MajorST <- tibble(
+    "NO" = 40,
+    "Yes" = 60
+  )
+  targets$Had_HDLC <- tibble(
+    "NO" = 40,
+    "Yes" = 60
+  )
   
-  var_list <- c("Race_or_Ethnicity", 'Gender', 'Age_Group')
+  var_list <- c("Race_or_Ethnicity", 'Gender', 'Age_Group', 'Smoker', 'Had_MajorST', 'Had_HDLC')
   
   dat <- dat %>% select(unlist(var_list))
   
-  dat2 <- dat %>% mutate(Age_Group = recode(Age_Group, '40-59'=0, '59+'=1),
+  #recoding these two variables because subgroup names are not suitable to access using dots
+  dat2 <- dat %>% mutate(Age_Group = recode(Age_Group, '40-59'=0, '59+'=1), 
                          Race_or_Ethnicity = recode(Race_or_Ethnicity,
                                                     'NH White' = 0,
                                                     'NH Black' = 1,
                                                     'NH Asian' = 2,
                                                     'Hispanic' = 3,
-                                                    'Other' = 4))
+                                                    'Other' = 4),
+                         Smoker = recode(Smoker, "No smoke"=0, "Smoke"=1))
   
   dat2 <- as_tibble(dat2)
   result <- ipu(dat2, targets, max_iterations = maxIter)
@@ -179,7 +193,7 @@ get_mediumBiasSprint <- function(dat, maxIter){
 
 ################################################################################
 ###### Function to borrow synthetic controls from EC #############
-get_matched_controls <- function(method_name, RCT, BIASED_EC, N){
+get_matched_controls <- function(method_name, RCT, BIASED_EC, vars_to_match, N){
   
   # #slice data to only keep propensity adjustment variables
   # trial_data <- RCT %>% select(MASKID, RANDASSIGN, Age_Group, Gender, Race_or_Ethnicity, Education,
@@ -201,36 +215,36 @@ get_matched_controls <- function(method_name, RCT, BIASED_EC, N){
                                                         replace = T, caliper = 1)
   }
   else if(method_name=="simple_matchit"){
-    matched_controls_df <- get_simple_matchit(trial_data, ec_data, replace = F)
+    matched_controls_df <- get_simple_matchit4(trial_data, ec_data, vars_to_match, N)
   }
   
   return(matched_controls_df)
   #return (BIASED_EC[BIASED_EC$MASKID %in% matched_controls_df$MASKID,])
 }
 
-get_matched_controls_with_dummies <- function(method_name, RCT, BIASED_EC, N){
-  
-  #slice data to only keep propensity adjustment variables
-  trial_data <- RCT %>% select(MASKID, RANDASSIGN, Age_Group, Gender, NH_Asian, NH_Black, NH_White, 
-                               Hispanic, Other, Education,
-                               Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
-                               SERUMCREAT, GFRESTIMATE)
-  
-  ec_data <- BIASED_EC %>% select(MASKID, RANDASSIGN, Age_Group, Gender, NH_Asian, NH_Black, NH_White, 
-                                  Hispanic, Other, Education,
-                                  Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
-                                  SERUMCREAT, GFRESTIMATE)
-  
-  if(method_name=="top_n_propensity"){
-    matched_controls_df <- get_top_n_propensity_from_EC(trial_data, ec_data, N)
-  }
-  else if(method_name=="one_to_one_with_replace_caliper"){
-    matched_controls_df <- get_one_to_one_match_from_EC(trial_data, ec_data,
-                                                        replace = T, caliper = 1)
-  }
-  
-  return (BIASED_EC[BIASED_EC$MASKID %in% matched_controls_df$MASKID,])
-}
+# get_matched_controls_with_dummies <- function(method_name, RCT, BIASED_EC, N){
+#   
+#   #slice data to only keep propensity adjustment variables
+#   trial_data <- RCT %>% select(MASKID, RANDASSIGN, Age_Group, Gender, NH_Asian, NH_Black, NH_White, 
+#                                Hispanic, Other, Education,
+#                                Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
+#                                SERUMCREAT, GFRESTIMATE)
+#   
+#   ec_data <- BIASED_EC %>% select(MASKID, RANDASSIGN, Age_Group, Gender, NH_Asian, NH_Black, NH_White, 
+#                                   Hispanic, Other, Education,
+#                                   Smoker, SBP, FPG, TC, CVDHISTORY, CVDPOINTS, 
+#                                   SERUMCREAT, GFRESTIMATE)
+#   
+#   if(method_name=="top_n_propensity"){
+#     matched_controls_df <- get_top_n_propensity_from_EC(trial_data, ec_data, N)
+#   }
+#   else if(method_name=="one_to_one_with_replace_caliper"){
+#     matched_controls_df <- get_one_to_one_match_from_EC(trial_data, ec_data,
+#                                                         replace = T, caliper = 1)
+#   }
+#   
+#   return (BIASED_EC[BIASED_EC$MASKID %in% matched_controls_df$MASKID,])
+# }
 
 ############# Functions to generate matched controls #############
 
@@ -323,32 +337,146 @@ get_one_to_one_match_from_EC <- function(trial_data, ec_data, replace, caliper){
   return(matched_data %>% filter(RANDASSIGN==0)) #contains weights
 }
 
-get_simple_matchit <- function(trial_data, ec_data, replace){
-  variables_to_convert <- c("Age_Group", "Gender", "Race_or_Ethnicity", "Education", 
-                            "Prior_HypTreat", "Smoker", "Had_MIS", "Had_CRV", "Had_ASCVD", 
-                            "Had_MajorST", "Had_T2D", "Had_HDLC", "Had_LVH_ELCT", "Had_LVH_ECHO", 
-                            "Has_CHD")
-  for (var in variables_to_convert) {
-    trial_data[[var]] <- as.factor(trial_data[[var]])
-    ec_data[[var]] <- as.factor(ec_data[[var]])
-  }
-  all_vars <- colnames(trial_data)
-  len <- length(all_vars)-2
-  matching_vars_list <- all_vars[2:len]
+get_simple_matchit <- function(trial_data, ec_data, vars_to_match){
+  
+  #generate the matching vars list
+  
+  matching_vars_list <- vars_to_match
   
   All_strings <- lapply(matching_vars_list, as.character)
   var_string <- paste(All_strings, collapse = " + ")
   response_var <- "RANDASSIGN"
   formula <- reformulate(termlabels = var_string, response = response_var)
   
-  population <- rbind(trial_data %>% filter(RANDASSIGN==1), 
+  population <- rbind(trial_data %>% filter(RANDASSIGN==1),
                       ec_data)
+  
+  ####### Additional code to maintain Fixed SC size #########
+  # tr <- trial_data %>% filter(RANDASSIGN==1)
+  # cn <- trial_data %>% filter(RANDASSIGN==0)
+  # tr_sample <- sample_n(tr, nrow(tr) - nrow(cn), replace = F)
+  # population <- rbind(tr_sample, ec_data)
+  ########################################################
   
   m1 <- matchit(formula, data = population, method = "nearest", distance = "glm", replace = T)
   matched_data <- match.data(m1)
   
   return(matched_data %>% filter(RANDASSIGN==0)) #return the matched controls data
   
+}
+
+get_simple_matchit2 <- function(trial_data, ec_data, vars_to_match){
+  
+  #generate the matching vars list
+  
+  matching_vars_list <- vars_to_match
+  
+  All_strings <- lapply(matching_vars_list, as.character)
+  var_string <- paste(All_strings, collapse = " + ")
+  trial_data$inTrial <- 1
+  ec_data$inTrial <- 0
+  response_var <- "inTrial"
+  formula <- reformulate(termlabels = var_string, response = response_var)
+  
+  population <- rbind(trial_data, ec_data)
+  
+  m1 <- matchit(formula, data = population, method = "nearest", distance = "glm", replace = T)
+  matched_data <- match.data(m1)
+  
+  return(matched_data %>% filter(inTrial==0)) #return the matched controls data
+  
+}
+
+get_simple_matchit3 <- function(trial_data, ec_data, vars_to_match, N){ #similar to NC
+  
+  #generate the matching vars list
+  
+  if(N!=0){ #we need to borrow some synthetic controls
+    matching_vars_list <- vars_to_match
+    
+    All_strings <- lapply(matching_vars_list, as.character)
+    var_string <- paste(All_strings, collapse = " + ")
+    trial_data$inTrial <- 1
+    ec_data$inTrial <- 0
+    response_var <- "inTrial"
+    new_formula <- reformulate(termlabels = var_string, response = response_var)
+    
+    training_population <- do.call("rbind", list(trial_data, ec_data)) 
+    
+    ta_sample <- sample_n(trial_data %>% filter(RANDASSIGN==1), size=N, replace = F)
+    predict_population <- rbind(ta_sample, ec_data)
+    
+    #step 1: get the propensity model
+    # propensity_model <- get_propensity_model(model_name = "logistic_regression",
+    #                                          population=training_population)
+    propensity_model <- glm(new_formula, data = training_population, family = binomial())
+    
+    #step 2: use the model to predict ps of external data
+    # propensity_score_of_predict_population <- get_propensity_score(Model=propensity_model,
+    #                                                       population = predict_population)
+    pr_score = predict(propensity_model, predict_population, type = "response")
+    
+    #step 3: get matched external con†rols
+    m1 <- matchit(new_formula, data = predict_population, method = "nearest", distance = pr_score, replace = F)
+    matched_data <- match.data(m1)
+    return(matched_data %>% filter(inTrial==0))
+  }
+}
+  # m1 <- matchit(formula, data = population, method = "nearest", distance = "glm", replace = T)
+  # matched_data <- match.data(m1)
+  # 
+  # #got the propensity score from the computed model, saved as distance column in matched_data dataframe
+  # ta_sample <- sample_n(matched_data$RANDASSIGN==1, size=N, replace = F)
+  # ec_data <
+  # population2 <- 
+  # m2 <- matchit(formula, data = , method = "nearest", distance = matched)
+  
+  #return(matched_data %>% filter(inTrial==0)) #return the matched controls data
+  
+
+get_simple_matchit4 <- function(trial_data, ec_data, vars_to_match, N){ #similar to NC
+  
+  #generate the matching vars list
+  
+  if(N!=0){ #we need to borrow some synthetic controls
+    matching_vars_list <- vars_to_match
+    
+    All_strings <- lapply(matching_vars_list, as.character)
+    var_string <- paste(All_strings, collapse = " + ")
+    trial_data$inTrial <- 1
+    ec_data$inTrial <- 0
+    response_var <- "inTrial"
+    new_formula <- reformulate(termlabels = var_string, response = response_var)
+    
+    training_population <- do.call("rbind", list(trial_data, ec_data)) 
+    
+    ta_sample <- trial_data %>% filter(RANDASSIGN==1) #using all TA
+    predict_population <- rbind(ta_sample, ec_data)
+    
+    #step 1: get the propensity model
+    # propensity_model <- get_propensity_model(model_name = "logistic_regression",
+    #                                          population=training_population)
+    propensity_model <- glm(new_formula, data = training_population, family = binomial())
+    
+    #step 2: use the model to predict ps of external data
+    # propensity_score_of_predict_population <- get_propensity_score(Model=propensity_model,
+    #                                                       population = predict_population)
+    pr_score = predict(propensity_model, predict_population, type = "response")
+    
+    #step 3: get matched external con†rols
+    m1 <- matchit(new_formula, data = predict_population, method = "nearest", distance = pr_score, replace = T)
+    matched_data <- match.data(m1)
+    
+    synthetic_controls <- matched_data %>% filter(inTrial==0)
+    synthetic_controls$inTrial <- NULL
+    sc_weights <- synthetic_controls$weights
+    synthetic_controls <- sample_n(synthetic_controls, size = N, replace = T, weight = sc_weights)
+    synthetic_controls$distance <- NULL
+    synthetic_controls$weighs <- NULL
+    synthetic_controls$RANDASSIGN <- 0
+    
+    return(synthetic_controls)
+  }
 }
 
 ################################################################################
@@ -516,13 +644,33 @@ get_IPF_weights <- function(dat, maxIter=100){
 }
 
 ################################################################################
-get_cox_effect <- function(population, weights){
+# get_cox_effect <- function(population, weights){
+#   if (!is.null(weights)){
+#     fit <- coxph(Surv(CVD_EVENTDAYS, CVD_EVENT)~RANDASSIGN, data=population, weights = weights)
+#   }
+#   else{
+#     fit <- coxph(Surv(CVD_EVENTDAYS, CVD_EVENT)~RANDASSIGN, data=population)
+#   }
+#   estimate <- coef(fit)['RANDASSIGN']
+#   return (estimate)
+# }
+
+get_cox_effect <- function(population, outcome_days, outcome_event, weights){
+  
+  # Extract survival time and status vectors from the dataframe
+  survival_time <- population[[outcome_days]]
+  survival_status <- population[[outcome_event]]
+  
+  # Create a survival object
+  survival_data <- Surv(time = survival_time, event = survival_status)
+  
   if (!is.null(weights)){
-    fit <- coxph(Surv(EVENTDAYS, EVENT)~RANDASSIGN, data=population, weights = weights)
+    fit <- coxph(survival_data~RANDASSIGN, data=population, weights = weights)
   }
   else{
-    fit <- coxph(Surv(EVENTDAYS, EVENT)~RANDASSIGN, data=population)
+    fit <- coxph(survival_data~RANDASSIGN, data=population)
   }
+  
   estimate <- coef(fit)['RANDASSIGN']
   return (estimate)
 }
@@ -544,10 +692,10 @@ get_adjusted_weights <- function(hybrid_RCT, target, proba_estimate_method, weig
   return (RCT_weights)
 }
 
-get_adjusted_effect <- function(hybrid_RCT, RCT_weights){
+get_adjusted_effect <- function(hybrid_RCT, time, status, RCT_weights){
   
   #treatment effect using the hybrid RCT dataset
-  treatment_effect <- get_cox_effect(hybrid_RCT, RCT_weights)
+  treatment_effect <- get_cox_effect(hybrid_RCT, time, status, RCT_weights)
   return(treatment_effect)
   
 }
@@ -592,12 +740,13 @@ get_LD_nth_level <- function(trial_pop, target_pop, trial_weights, var_name_list
   #combine trial data and weights into one df for slicing easiness
   trial_pop$weights <- trial_weights
   
-  #generate var combinations on n-th level subgroup
+  #generate var combinations on n-th level subgroup 
   output <- generate_subgroups(var_subgroup_list, n)
   
   for (i in 1:length(output)){ #do action for each n-th level subgroup
     
-    trial_copy_grp_member <- trial_pop
+    #trial_copy_grp_member <- trial_pop
+    trial_copy_grp_member <- sample_n(trial_pop, size = nrow(trial_pop), replace = T, weight = trial_weights)
     target_copy_grp_member <- target_pop
     
     #take each of the subgroup combination
@@ -615,12 +764,16 @@ get_LD_nth_level <- function(trial_pop, target_pop, trial_weights, var_name_list
         trial_total_count <- nrow(trial_pop)
       }
       else{
-        trial_grp_member_count <- ceiling(sum(trial_copy_grp_member$weights))
-        trial_total_count <- ceiling(sum(trial_weights))
+        # trial_grp_member_count <- ceiling(sum(trial_copy_grp_member$weights))
+        # trial_total_count <- ceiling(sum(trial_weights))
+        trial_grp_member_count <- nrow(trial_copy_grp_member)
+        trial_total_count <- nrow(trial_pop)
       }
 
       target_grp_member_count <- sum(target_copy_grp_member$n)
       target_total_count <- sum(target_pop$n)
+      
+      #cat(target_grp_member_count, target_total_count, trial_grp_member_count, trial_total_count, "\n", sep=" ")
       
       bg_rate <- Rate_Calculation(target_grp_member_count, target_total_count)
       user_rate <- Rate_Calculation(trial_grp_member_count, trial_total_count)
@@ -658,3 +811,92 @@ recode_race <- function(df){
   df$Other    <- ifelse(df$Other==1,"Other_1", "Other_0")
   return (df)
 }
+
+
+
+################################################################################
+## Can Handle CC Size = 0
+get_ASMD <- function(pop1, pop2, seed, controls, var_list){
+  pop1$group <- "c1"
+  if (nrow(pop2)!=0){
+    pop2$group <- "c2"
+    v <- CreateTableOne(var_list, strata = "group", data = rbind(pop1, pop2), test=F)
+    df <- data.frame(Seed        = seed,
+                     Controls    = controls,
+                     Variable    = rownames(ExtractSmd(v)),
+                     SMD         = as.numeric(ExtractSmd(v)))
+  }
+  else{
+    df <- data.frame(Seed        = seed,
+                     Controls    = controls,
+                     Variable    = var_list,
+                     SMD         = NA)
+  }
+  return(df)
+}
+
+
+# get_weighted_mean <- function(values, weights) {
+#   print(values)
+#   print(weights)
+#   print(sum(values * weights))
+#   wm <- sum(values * weights) / sum(weights)
+#   return(wm)
+# }
+
+
+##### Don;t need this <- because we won't be calculated weighted var for the controls, 
+##### as we are just using the treatment arm
+# get_weighted_var <- function(values, weights, mean) {
+#   return(sum(weights * (values - mean)^2) / sum(weights))
+# }
+
+
+
+
+get_ASMD_new <- function(pop1, pop2, seed, controls, var_list, control_weights){
+  
+  
+  #smd_data <- data.frame(Seed = numeric(0), Controls = character(0), Variable = character(0), SMD = numeric(0), stringsAsFactors = FALSE)
+  
+  if(nrow(pop2)==0){
+    
+    df <- data.frame(Seed = seed, 
+                     Controls = controls, 
+                     Variable = var_list, 
+                     SMD = NA)
+    return(df)
+  }
+  else{
+    
+    pop1$tr <- 1
+    pop2$tr <- 0
+    combined_pop <- rbind(pop1, pop2)
+    cmd <- combined_pop %>% select(var_list) #selected vars
+    
+    
+    res <- bal.tab(cmd, treat = combined_pop$tr, s.d.denom = "treat", binary="std", 
+                   abs=T, weights = c(rep(1, nrow(pop1)),control_weights))
+    
+    smd_data <- data.frame(Seed = seed,
+                           Controls = controls,
+                           Variable = rownames(res$Balance),
+                           SMD = res$Balance$Diff.Adj)
+    return(smd_data)
+  }
+}
+
+
+check_subgroup_counts <- function(data, columns, unique_counts) {
+  for (i in seq_along(columns)) {
+    col <- columns[i]
+    unique_vals <- unique(data[[col]])
+    
+    if (length(unique_vals) != unique_counts[i]) {
+      return(FALSE)
+    }
+  }
+  
+  return(TRUE)
+}
+
