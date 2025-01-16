@@ -7,11 +7,11 @@ source("./Wrapper/load_data_formatted.R")
 
 ####################################### Make Equity Summary ######################################
 
-eq1 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_full_4000_0.csv")
-eq2 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_full_4000_500.csv")
-eq3 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_full_4000_1000.csv")
-eq4 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_full_4000_2000.csv")
-eq5 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_full_4000_4000.csv")
+eq1 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_fulltest_4000_0.csv")
+eq2 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_fulltest_4000_500.csv")
+eq3 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_fulltest_4000_1000.csv")
+eq4 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_fulltest_4000_2000.csv")
+eq5 <- read.csv("./Data/Results/M6/ALLHAT_Results/Equity/Matchit3/EQUITY_New_fulltest_4000_4000.csv")
 
 eq1$CC_Size <- 0
 eq2$CC_Size <- 500

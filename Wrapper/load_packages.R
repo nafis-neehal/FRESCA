@@ -25,7 +25,7 @@ suppressPackageStartupMessages({
   library(survival)
   library(survminer)
   library(gtsummary)
-  library(generalize)
+  #library(generalize)
   library(tidyverse)
   library(tidymodels)
   library(Rmisc) #for using 95% CI built-in function
@@ -33,6 +33,6 @@ suppressPackageStartupMessages({
   library(fastDummies) #for creating dummy variables
   library(sas7bdat) #for loading ALLHAT RCT
   library(cobalt)
-  library(AICcmodavg) #for AIC calculation
-  library(finalfit)
+  #library(AICcmodavg) #for AIC calculation
+  #library(finalfit)
 })

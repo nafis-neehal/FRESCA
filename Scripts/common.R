@@ -25,7 +25,7 @@ suppressPackageStartupMessages({
   library(survival)
   library(survminer)
   library(gtsummary)
-  library(generalize)
+  #library(generalize)
   library(tidyverse)
   library(tidymodels)
 })

@@ -40,7 +40,7 @@ read_data <- function(partition_seed, import_target=T){
 
 partition_data_generic <- function(data, partition_seed, import_target=T){
   dat <- get_rct_biased_ec_data(seed_value=partition_seed, data=data, TA_Size=TA_Size, CC_Size=CC_Size, 
-                                IPF_maxiter=IPF_maxiter)
+                                IPF_maxiter=IPF_maxiter) #-- defined in load_data_formatted.R
   #get the target dataframe ready
   if(import_target==F){
     return(dat)
@@ -603,7 +603,7 @@ get_gen_trial_weights_v4 <- function(trial, target, proba_estimate_method){
 }
 
 get_IPF_weights <- function(dat, maxIter=100){
-  #fix the target distributions from TP
+  #fix the target distributions from TP #### <- For now use these values, got from NHAES complex calculation
   targets <- list()
   targets$Age_Group <- tibble(
     '0' = 31.184,
@@ -686,7 +686,7 @@ get_adjusted_weights <- function(hybrid_RCT, target, proba_estimate_method, weig
   if (weight_method=="gen"){
     RCT_weights <- get_gen_trial_weights_v1(hybrid_RCT, target, 
                                        proba_estimate_method = proba_estimate_method)
-  } else if (weight_method=="ipf"){
+  } else if (weight_method=="ipf"){ #<---- stick to this
     RCT_weights <- get_IPF_weights(hybrid_RCT, maxIter = IPF_maxiter)
   }
   return (RCT_weights)

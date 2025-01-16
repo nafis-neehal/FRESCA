@@ -6,8 +6,8 @@ source("./Modules/equity_metrics_miao.R")
 
 TA_World <- data %>% filter(RANDASSIGN==1)
 TA_size <- 2000
-total_seeds <- 10 #number of total scenarios
-total_success <- 50 #number of inner bootstraps
+total_seeds <- 1 #number of total scenarios
+total_success <- 5 #number of inner bootstraps
 IPF_maxiter <- 100
 step_size <- 500
 randomization_ratio <- 1
@@ -49,7 +49,7 @@ paste("Total time took:", end-start)
 close(pb)
 stopCluster(cl)
 stopImplicitCluster()
-
+ 
 #save the data
 setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
 directory <- "./Data/Results/M6/"
