@@ -1,0 +1,120 @@
+---
+title: "Notebook for generating PATT Visuals"
+output: html_notebook
+---
+
+Import the common scripts, modules and libraries and set the working directory.
+
+```{r}
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
+source("./Scripts/common.R")
+source("./Scripts/run_patt_scenario.R")
+source("./Modules/p_val_add.R")
+source("./Modules/equity_metrics_miao.R")
+```
+
+Import the result file that contains the PATT Summary. It was generated using 'generate_patt_data.rmd' notebook.
+
+```{r}
+setwd("/home/neehan/data/Nafis/ESCA_Primary_Git")
+directory <- "./Data/Results/M6/"
+filename <- "PATT_Summary_extrabias.csv"
+Final_PATT_Summary <- read.csv(paste(directory, filename, sep = ""))
+```
+
+Generate mean with confidence interval across all 20 scenarios.
+
+```{r}
+confint <- 0.95
+mean_summary <- Final_PATT_Summary %>% 
+  group_by(CC_Size) %>% 
+  summarise(mean(TA_CC), 
+            TA_CC_Low = confidence_interval(TA_CC, confint)[1], 
+            TA_CC_High = confidence_interval(TA_CC, confint)[2],
+            mean(TA_HC_Prop), 
+            TA_HC_Prop_Low = confidence_interval(TA_HC_Prop, confint)[1], 
+            TA_HC_Prop_High = confidence_interval(TA_HC_Prop, confint)[2],
+            mean(TA_HC_IPF), 
+            TA_HC_IPF_Low = confidence_interval(TA_HC_IPF, confint)[1], 
+            TA_HC_IPF_High = confidence_interval(TA_HC_IPF, confint)[2], 
+            mean(TA_HC_Both), 
+            TA_HC_Both_Low = confidence_interval(TA_HC_Both, confint)[1], 
+            TA_HC_Both_High = confidence_interval(TA_HC_Both, confint)[2]) %>%
+  rename(TA_CC = "mean(TA_CC)",
+         TA_HC_Prop = "mean(TA_HC_Prop)",
+         TA_HC_IPF = "mean(TA_HC_IPF)",
+         TA_HC_Both = "mean(TA_HC_Both)")
+```
+
+```{r}
+#ylim min and max point generation
+min_point <- min(mean_summary %>% 
+                   replace(is.na(mean_summary), 0) %>% 
+                   select(TA_CC:TA_HC_Both_High)) - 0.25
+max_point <- max(mean_summary %>% 
+                   replace(is.na(mean_summary), -10000) %>%
+                   select(TA_CC:TA_HC_Both_High)) + 0.25
+
+sgt <- -0.314
+gt <- -0.239
+gt_high <- -0.263
+gt_low <- -0.216
+
+#plot only CC
+p1 <- ggplot(mean_summary, aes(x=CC_Size)) + 
+  geom_line(aes(y=TA_CC, colour="Only CC")) + geom_point(aes(y=TA_CC, colour="Only CC")) + 
+  geom_errorbar(aes(ymin=TA_CC_Low, ymax=TA_CC_High, colour="Only CC")) + 
+  ylim(min_point, max_point) + 
+  geom_hline(yintercept=sgt, linetype="dashed", color = "black") + 
+  geom_hline(yintercept=gt_high, color = "red") + 
+  geom_hline(yintercept=gt, linetype="dashed", color = "red") + 
+  geom_hline(yintercept=gt_low, color = "red") + 
+  theme_classic()+
+  labs(x="CC_Size", y="PATT Estimate", caption = "TA + CC") + 
+  scale_color_manual(values=c("Only CC"="#D55E00")) 
+
+#plot HC+Propensity
+p2 <- ggplot(mean_summary, aes(x=CC_Size)) +
+  geom_line(aes(y=TA_HC_Prop, color="HC+Propensity")) + geom_point(aes(y=TA_HC_Prop, color="HC+Propensity")) + 
+  geom_errorbar(aes(ymin=TA_HC_Prop_Low, ymax=TA_HC_Prop_High, color="HC+Propensity")) +
+  ylim(min_point, max_point) + 
+  geom_hline(yintercept=sgt, linetype="dashed", color = "black") + 
+  geom_hline(yintercept=gt_high, color = "red") + 
+  geom_hline(yintercept=gt, linetype="dashed", color = "red") + 
+  geom_hline(yintercept=gt_low, color = "red") + 
+  theme_classic()+
+  labs(x="CC_Size", y="PATT Estimate", caption = "TA + HC + Propensity") + 
+  scale_color_manual(values=c("HC+Propensity"="#336699")) 
+
+#plot HC+IPF
+p3 <- ggplot(mean_summary, aes(x=CC_Size)) +
+  geom_line(aes(y=TA_HC_IPF, color="HC+IPF")) + geom_point(aes(y=TA_HC_IPF, color="HC+IPF")) + 
+  geom_errorbar(aes(ymin=TA_HC_IPF_Low, ymax=TA_HC_IPF_High, color="HC+IPF")) +
+  ylim(min_point, max_point) + 
+  geom_hline(yintercept=sgt, linetype="dashed", color = "black") + 
+  geom_hline(yintercept=gt_high, color = "red") + 
+  geom_hline(yintercept=gt, linetype="dashed", color = "red") + 
+  geom_hline(yintercept=gt_low, color = "red") + 
+  theme_classic()+
+  labs(x="CC_Size", y="PATT Estimate", caption = "TA + HC + IPF") + 
+  scale_color_manual(values=c("HC+IPF"="#CC66FF")) 
+
+#plot HC+Propensity+IPF
+p4 <- ggplot(mean_summary, aes(x=CC_Size)) +
+  geom_line(aes(y=TA_HC_Both, color="HC+Propensity+IPF")) + geom_point(aes(y=TA_HC_Both, color="HC+Propensity+IPF")) + 
+  geom_errorbar(aes(ymin=TA_HC_Both_Low, ymax=TA_HC_Both_High, color="HC+Propensity+IPF")) +
+  ylim(min_point, max_point) + 
+  geom_hline(yintercept=sgt, linetype="dashed", color = "black") + 
+  geom_hline(yintercept=gt_high, color = "red") + 
+  geom_hline(yintercept=gt, linetype="dashed", color = "red") + 
+  geom_hline(yintercept=gt_low, color = "red") + 
+  theme_classic()+
+  labs(x="CC_Size", y="PATT Estimate", caption = "TA + HC + Propensity + IPF") + 
+  scale_color_manual(values=c("HC+Propensity+IPF"="#FFCC00")) 
+
+```
+
+```{r}
+p1 + p2 + p3 + p4 + 
+  plot_layout(ncol=2, nrow=2) 
+```
